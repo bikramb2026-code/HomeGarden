@@ -1,58 +1,126 @@
 import Order from '../models/Order.js';
 
-// POST /api/orders
+// Create new order (supports online payment and COD)
 export const createOrder = async (req, res) => {
   try {
-    const orderData = req.body;
+    const {
+      customerName,
+      phone,
+      address,
+      landmark,
+      city,
+      pincode,
+      items,
+      plantsTotal,
+      deliveryCharge,
+      totalAmount,
+      paymentType, // 'full', 'advance', or 'cod'
+      advancePaid,
+      remainingAmount,
+      distance,
+      deliveryTime,
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature
+    } = req.body;
 
     // Validate required fields
-    const requiredFields = ['customerName', 'phone', 'address', 'city', 'pincode', 'items', 'plantsTotal', 'totalAmount', 'paymentType'];
-    for (const field of requiredFields) {
-      if (!orderData[field]) {
+    if (!customerName || !phone || !address || !city || !pincode) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required customer information"
+      });
+    }
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "No items in order"
+      });
+    }
+
+    // Validate payment type
+    if (!['advance', 'full', 'cod'].includes(paymentType)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid payment type"
+      });
+    }
+
+    // Create order object
+    const orderData = {
+      customerName,
+      phone,
+      address,
+      landmark: landmark || '',
+      city,
+      pincode,
+      items,
+      plantsTotal,
+      deliveryCharge,
+      totalAmount,
+      paymentType,
+      advancePaid: advancePaid || 0,
+      remainingAmount: remainingAmount || totalAmount,
+      distance: distance || null,
+      deliveryTime: deliveryTime || null,
+      orderStatus: 'confirmed',
+    };
+
+    // Handle payment-specific fields
+    if (paymentType === 'cod') {
+      orderData.paymentStatus = 'pending';
+      orderData.razorpayOrderId = null;
+      orderData.razorpayPaymentId = null;
+      orderData.razorpaySignature = null;
+    } else {
+      // Online payment validation
+      if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
         return res.status(400).json({
-          error: `Missing required field: ${field}`
+          success: false,
+          error: "Missing payment information for online payment"
         });
       }
+      orderData.paymentStatus = 'paid';
+      orderData.razorpayOrderId = razorpayOrderId;
+      orderData.razorpayPaymentId = razorpayPaymentId;
+      orderData.razorpaySignature = razorpaySignature;
     }
 
-    // Validate phone number (10 digits)
-    if (!/^\d{10}$/.test(orderData.phone)) {
-      return res.status(400).json({
-        error: 'Invalid phone number. Must be 10 digits.'
-      });
-    }
+    const newOrder = new Order(orderData);
+    await newOrder.save();
 
-    // Validate pincode (6 digits)
-    if (!/^\d{6}$/.test(orderData.pincode)) {
-      return res.status(400).json({
-        error: 'Invalid pincode. Must be 6 digits.'
-      });
-    }
-
-    const order = new Order(orderData);
-    await order.save();
+    console.log(`✅ ${paymentType.toUpperCase()} Order saved:`, newOrder._id);
 
     res.status(201).json({
       success: true,
-      order
+      order: {
+        _id: newOrder._id,
+        totalAmount: newOrder.totalAmount,
+        paymentType: newOrder.paymentType,
+        paymentStatus: newOrder.paymentStatus,
+        orderStatus: newOrder.orderStatus
+      }
     });
 
   } catch (error) {
-    console.error('Order creation error:', error);
+    console.error("❌ Order creation error:", error);
     res.status(500).json({
-      error: error.message || 'Failed to create order'
+      success: false,
+      error: error.message || "Failed to create order"
     });
   }
 };
 
-// GET /api/orders/:id (optional - for order tracking)
+// Get order by ID
 export const getOrderById = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-
+    
     if (!order) {
       return res.status(404).json({
-        error: 'Order not found'
+        success: false,
+        error: "Order not found"
       });
     }
 
@@ -60,33 +128,67 @@ export const getOrderById = async (req, res) => {
       success: true,
       order
     });
-
   } catch (error) {
-    console.error('Error fetching order:', error);
+    console.error("Error fetching order:", error);
     res.status(500).json({
-      error: 'Failed to fetch order'
+      success: false,
+      error: "Failed to fetch order"
     });
   }
 };
 
-// GET /api/orders/phone/:phone (optional - for customer order history)
+// Get orders by phone number
 export const getOrdersByPhone = async (req, res) => {
   try {
-    const { phone } = req.params;
-
-    const orders = await Order.find({ phone })
-      .sort({ createdAt: -1 })
-      .limit(10);
-
+    const orders = await Order.find({ phone: req.params.phone })
+      .sort({ createdAt: -1 });
+    
     res.json({
       success: true,
       orders
     });
-
   } catch (error) {
-    console.error('Error fetching orders:', error);
+    console.error("Error fetching orders:", error);
     res.status(500).json({
-      error: 'Failed to fetch orders'
+      success: false,
+      error: "Failed to fetch orders"
+    });
+  }
+};
+
+// Update order status (for admin panel)
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { orderStatus, paymentStatus } = req.body;
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: "Order not found"
+      });
+    }
+
+    if (orderStatus) order.orderStatus = orderStatus;
+    if (paymentStatus) order.paymentStatus = paymentStatus;
+
+    // If order is delivered and payment was COD, mark as paid
+    if (orderStatus === 'delivered' && order.paymentType === 'cod') {
+      order.paymentStatus = 'paid';
+    }
+
+    await order.save();
+
+    res.json({
+      success: true,
+      order
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to update order status"
     });
   }
 };

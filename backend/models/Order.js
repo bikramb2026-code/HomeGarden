@@ -29,8 +29,12 @@ const orderSchema = new mongoose.Schema({
   deliveryCharge: { type: Number, default: 0 },
   totalAmount: { type: Number, required: true },
 
-  // Payment details
-  paymentType: { type: String, enum: ['advance', 'full'], required: true },
+  // Payment details - ADD 'cod' to enum
+  paymentType: { 
+    type: String, 
+    enum: ['advance', 'full', 'cod'],  // ✅ Added 'cod'
+    required: true 
+  },
   advancePaid: { type: Number, default: 0 },
   remainingAmount: { type: Number, default: 0 },
 
@@ -46,7 +50,7 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ['placed', 'confirmed', 'shipped', 'delivered'],
+    enum: ['placed', 'confirmed', 'shipped', 'delivered', 'cancelled'],
     default: 'placed'
   },
 
@@ -60,5 +64,6 @@ const orderSchema = new mongoose.Schema({
 // Index for faster queries
 orderSchema.index({ phone: 1 });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ paymentType: 1 });
 
 export default mongoose.model('Order', orderSchema);

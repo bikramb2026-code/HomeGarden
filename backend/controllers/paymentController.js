@@ -1,31 +1,30 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import Order from "../models/Order.js";
 
 // Check if keys are available
 const key_id = process.env.RAZORPAY_KEY_ID;
 const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
-if (!key_id || !key_secret) {
-  console.error("❌ Razorpay credentials missing!");
-  console.error("Current values:", {
-    RAZORPAY_KEY_ID: key_id ? "✅ Set" : "❌ Missing",
-    RAZORPAY_KEY_SECRET: key_secret ? "✅ Set" : "❌ Missing",
+let razorpay = null;
+if (key_id && key_secret) {
+  razorpay = new Razorpay({
+    key_id: key_id,
+    key_secret: key_secret,
   });
-  throw new Error("Razorpay credentials not configured");
+  console.log("✅ Razorpay initialized successfully");
+} else {
+  console.warn("⚠️ Razorpay not initialized (COD only mode)");
 }
-
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: key_id,
-  key_secret: key_secret,
-});
-
-console.log("✅ Razorpay initialized successfully");
 
 // POST /api/payment/create-order
 export const createOrder = async (req, res) => {
   try {
+    if (!razorpay) {
+      return res.status(503).json({
+        error: "Online payment is temporarily unavailable. Please use Cash on Delivery."
+      });
+    }
+
     const { amount } = req.body;
 
     if (!amount || amount <= 0) {
@@ -61,6 +60,12 @@ export const createOrder = async (req, res) => {
 // POST /api/payment/verify
 export const verifyPayment = async (req, res) => {
   try {
+    if (!razorpay) {
+      return res.status(503).json({
+        error: "Online payment verification unavailable. Please use Cash on Delivery."
+      });
+    }
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -95,21 +100,14 @@ export const verifyPayment = async (req, res) => {
 
     console.log("✅ Payment verified for order:", razorpay_order_id);
 
-    // Save order to database
-    const newOrder = new Order({
-      ...orderData,
-      razorpayOrderId: razorpay_order_id,
-      razorpayPaymentId: razorpay_payment_id,
-      razorpaySignature: razorpay_signature,
-      paymentStatus: "paid",
-    });
-
-    await newOrder.save();
-    console.log("✅ Order saved to database:", newOrder._id);
-
+    // Return success with payment details - order will be saved by order controller
     res.json({
       success: true,
-      order: newOrder,
+      paymentDetails: {
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        razorpaySignature: razorpay_signature,
+      }
     });
   } catch (error) {
     console.error("❌ Payment verification error:", error);

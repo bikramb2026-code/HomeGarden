@@ -21,6 +21,7 @@ const Checkout = () => {
   const [error, setError] = useState('');
   const [paymentType, setPaymentType] = useState('full');
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null); // 🆕 For COD tracking
 
   const plantsTotal = getCartTotal();
   const deliveryCharge = deliveryInfo?.deliveryCharge || 0;
@@ -199,6 +200,168 @@ const Checkout = () => {
     return true;
   };
 
+  // 🆕 Handle COD Order
+  const handleCODOrder = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setSelectedPaymentMethod('cod');
+    setLoading(true);
+    setError('');
+
+    try {
+      const orderData = {
+        customerName: formData.name,
+        phone: formData.phone,
+        address: formData.address,
+        landmark: formData.landmark || '',
+        city: formData.city,
+        pincode: formData.pincode,
+        items: cart.map(item => ({
+          plantId: item.plantId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: getMainImage(item),
+        })),
+        plantsTotal,
+        deliveryCharge,
+        totalAmount,
+        paymentType: 'cod',
+        advancePaid: 0,
+        remainingAmount: totalAmount,
+        distance: deliveryInfo?.distance,
+        deliveryTime: deliveryInfo?.deliveryTime,
+      };
+
+      // Send to your orders endpoint
+      const response = await api.post('/orders', orderData);
+
+      if (response.data.success) {
+        // Format items list for WhatsApp
+        const itemsList = cart
+          .map(item => {
+            const imageUrl = getMainImage(item);
+            return `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ 🌱 *${item.name}*
+┃    📦 Qty: ${item.quantity} × ₹${item.price}
+┃    💰 Total: ₹${item.price * item.quantity}
+${imageUrl ? `┃    📸 *Plant Image:*\n┃    ${imageUrl}` : ''}
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`;
+          })
+          .join('\n\n');
+
+        // Format full address
+        const fullAddress = [
+          formData.address,
+          formData.landmark,
+          `${formData.city} - ${formData.pincode}`
+        ].filter(Boolean).join(', ');
+
+        // Current date and time
+        const orderDate = new Date().toLocaleString('en-IN', {
+          dateStyle: 'full',
+          timeStyle: 'short'
+        });
+
+        // Format delivery time for WhatsApp
+        const whatsappDeliveryTime = formatDeliveryTime(deliveryInfo?.deliveryTime);
+
+        // Premium WhatsApp message for COD
+        const message = `🌸 *🏡 HOMEGARDEN - COD ORDER* 🌸
+
+╔══════════════════════════════════╗
+║         📋 ORDER DETAILS         ║
+╚══════════════════════════════════╝
+
+🆔 *Order ID:* \`${response.data.order._id}\`
+📅 *Date & Time:* ${orderDate}
+💳 *Payment Method:* 💵 CASH ON DELIVERY
+
+╔══════════════════════════════════╗
+║         👤 CUSTOMER INFO         ║
+╚══════════════════════════════════╝
+
+👤 *Name:* ${formData.name}
+📞 *Phone:* \`${formData.phone}\`
+
+╔══════════════════════════════════╗
+║         📍 DELIVERY ADDRESS       ║
+╚══════════════════════════════════╝
+
+${fullAddress}
+
+╔══════════════════════════════════╗
+║         🌱 ORDER ITEMS            ║
+╚══════════════════════════════════╝
+
+${itemsList}
+
+╔══════════════════════════════════╗
+║         🚚 DELIVERY INFO          ║
+╚══════════════════════════════════╝
+
+┌──────────────────────────────────┐
+│  🚚 Charge: ${deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge}`}
+│  ⏱️ Time: ${whatsappDeliveryTime}
+│  📏 Distance: ${deliveryInfo?.distance || 'N/A'} km
+└──────────────────────────────────┘
+
+╔══════════════════════════════════╗
+║         💰 PAYMENT SUMMARY        ║
+╚══════════════════════════════════╝
+
+┌──────────────────────────────────┐
+│  💵 Plants Total: ₹${plantsTotal}
+│  ➕ Delivery: ${deliveryCharge === 0 ? 'FREE' : `₹${deliveryCharge}`}
+│  ════════════════════════════════
+│  💎 *TOTAL AMOUNT: ₹${totalAmount}*
+│  ════════════════════════════════
+│  💵 *Pay on Delivery: ₹${totalAmount}*
+└──────────────────────────────────┘
+
+╔══════════════════════════════════╗
+║         📱 CONTACT INFO           ║
+╚══════════════════════════════════╝
+
+📞 *Customer Support:* +91 ${import.meta.env.VITE_WHATSAPP_NUMBER}
+🌐 *Website:* www.homegarden.com
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✨ *Thank you for choosing HomeGarden!* ✨
+🌿 *Your plants will be delivered with love* 🌿
+💵 *Pay cash when you receive your order*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+        // Send WhatsApp message to admin
+        sendWhatsAppMessage(message);
+
+        // Wait 2 seconds before navigating to ensure WhatsApp opens
+        setTimeout(() => {
+          clearCart();
+          navigate('/order-success', {
+            state: {
+              orderId: response.data.order._id,
+              total: totalAmount,
+              customerName: formData.name,
+              phone: formData.phone,
+              address: fullAddress,
+              paymentType: 'cod',
+              advancePaid: 0,
+              remainingAmount: totalAmount,
+              message: 'Your COD order has been placed successfully! You will pay ₹' + totalAmount + ' when your order is delivered.'
+            }
+          });
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('COD Order error:', error);
+      setError(error.response?.data?.error || 'Failed to place COD order. Please try again.');
+      setLoading(false);
+    }
+  };
+
   const handlePayment = async (type) => {
     if (!window.Razorpay) {
       setError('Payment gateway is still loading. Please wait a moment and try again.');
@@ -209,6 +372,7 @@ const Checkout = () => {
       return;
     }
 
+    setSelectedPaymentMethod(type); // 🆕 Track payment method
     setPaymentType(type);
     const amountToPay = type === 'full' ? totalAmount : advanceAmount;
 
@@ -665,22 +829,23 @@ ${itemsList}
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons - UPDATED WITH COD */}
               <div className="mt-6 space-y-3">
+                {/* Full Payment Button */}
                 <button
                   onClick={() => handlePayment('full')}
                   disabled={!deliveryInfo || loading || !razorpayLoaded}
                   className="group relative w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    {loading ? (
+                    {loading && selectedPaymentMethod === 'full' ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         Processing...
                       </>
                     ) : (
                       <>
-                        Pay Full Amount (₹{totalAmount})
+                        💳 Pay Full Amount (₹{totalAmount})
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
@@ -690,13 +855,50 @@ ${itemsList}
                   <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </button>
 
+                {/* Advance Payment Button */}
                 <button
                   onClick={() => handlePayment('advance')}
                   disabled={!deliveryInfo || loading || !razorpayLoaded}
                   className="group relative w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    {loading ? 'Processing...' : `Pay ₹100 Advance (Remaining ₹${totalAmount - 100})`}
+                    {loading && selectedPaymentMethod === 'advance' ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        💵 Pay ₹100 Advance (Remaining ₹{totalAmount - 100})
+                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </>
+                    )}
+                  </span>
+                  <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </button>
+
+                {/* 🆕 CASH ON DELIVERY BUTTON */}
+                <button
+                  onClick={handleCODOrder}
+                  disabled={!deliveryInfo || loading}
+                  className="group relative w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 overflow-hidden"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {loading && selectedPaymentMethod === 'cod' ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        💰 Cash on Delivery (Pay ₹{totalAmount} when you receive)
+                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </>
+                    )}
                   </span>
                   <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </button>
