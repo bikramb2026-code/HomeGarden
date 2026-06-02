@@ -164,9 +164,9 @@ const PlantCard = ({ plant }) => {
               {plant.category.name}
             </span>
           )}
-          {plant.variety && (
-            <span className="px-2 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-400 text-[10px] sm:text-xs md:text-sm rounded-full font-semibold border border-purple-200 dark:border-purple-800 shadow-sm hover:shadow-md transition-shadow">
-              {typeof plant.variety === 'object' ? plant.variety.name : plant.variety}
+          {plant.variety?.name && (
+            <span className="px-2 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-400 text-[10px] sm:text-xs md:text-sm rounded-full font-semibold border border-purple-200 dark:border-purple-800">
+              {plant.variety.name}
             </span>
           )}
         </div>
@@ -203,8 +203,8 @@ const PlantCard = ({ plant }) => {
             onClick={handleAddToCart}
             disabled={!inStock}
             className={`group/btn relative text-xs sm:text-sm md:text-base font-medium py-2.5 sm:py-3 md:py-4 px-3 md:px-4 rounded-lg md:rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 md:gap-2 shadow-md hover:shadow-xl transform hover:scale-105 md:hover:scale-105 w-full overflow-hidden ${inStock
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
-                : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
+              : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
               }`}
           >
             {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
@@ -219,8 +219,8 @@ const PlantCard = ({ plant }) => {
             onClick={handleBuyNow}
             disabled={!inStock}
             className={`group/btn relative text-xs sm:text-sm md:text-base font-medium py-2.5 sm:py-3 md:py-4 px-3 md:px-4 rounded-lg md:rounded-xl transition-all duration-300 flex items-center justify-center gap-1.5 md:gap-2 shadow-md hover:shadow-xl transform hover:scale-105 md:hover:scale-105 w-full overflow-hidden ${inStock
-                ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white'
+              : 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
               }`}
           >
             {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
