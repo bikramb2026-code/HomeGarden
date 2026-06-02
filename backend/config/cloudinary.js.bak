@@ -1,0 +1,1 @@
+cp /root/HomeGarden/backend/config/cloudinary.js /root/HomeGarden/backend/config/cloudinary.js.bak
