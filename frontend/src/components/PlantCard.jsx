@@ -164,9 +164,11 @@ const PlantCard = ({ plant }) => {
               {plant.category.name}
             </span>
           )}
-          {plant.variety?.name && (
+          {plant.variety && (
             <span className="px-2 py-0.5 md:px-3 md:py-1 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 text-purple-700 dark:text-purple-400 text-[10px] sm:text-xs md:text-sm rounded-full font-semibold border border-purple-200 dark:border-purple-800">
-              {plant.variety.name}
+              {typeof plant.variety === "object"
+                ? plant.variety.name
+                : ""}
             </span>
           )}
         </div>
