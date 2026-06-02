@@ -107,12 +107,11 @@ export const getVarietyBySlug = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Variety not found" });
     }
-
-    const plants = await Plant.find({ variety: variety._id }) // Fixed: changed from subCategory to variety
+    const plants = await Plant.find({ variety: variety._id })
       .populate("section", "name slug")
       .populate("category", "name slug")
+      .populate("variety", "name slug")
       .sort({ name: 1 });
-
     res.json({
       success: true,
       data: {
