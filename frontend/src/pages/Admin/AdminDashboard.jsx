@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../contexts/useAuth";
 import api from "../../services/api";
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     sections: 0,
     categories: 0,
@@ -16,12 +18,39 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [greeting, setGreeting] = useState("");
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     fetchStats();
     setGreeting(getGreeting());
+
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMenuOpen]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -35,31 +64,26 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const [sectionsRes, categoriesRes, varietiesRes, plantsRes] =
-        await Promise.all([
-          api.get("/sections"),
-          api.get("/categories"),
-          api.get("/varieties"),
-          api.get("/plants", { params: { limit: 1 } }), // Add limit=1 to get total count efficiently
-        ]);
+      const [sectionsRes, categoriesRes, varietiesRes, plantsRes] = await Promise.all([
+        api.get("/sections"),
+        api.get("/categories"),
+        api.get("/varieties"),
+        api.get("/plants", { params: { limit: 1 } }),
+      ]);
 
       const newStats = {
         sections: sectionsRes.data.data?.length || 0,
         categories: categoriesRes.data.data?.length || 0,
         varieties: varietiesRes.data.data?.length || 0,
-        // Use total from response instead of data.length
         plants: plantsRes.data.total || plantsRes.data.data?.length || 0,
       };
 
       setStats(newStats);
-      setLastUpdated(new Date());
 
-      // Create recent activity items
       const activities = [];
 
       if (sectionsRes.data.data?.length > 0) {
-        const latest = sectionsRes.data.data.slice(-2);
-        latest.forEach((item) => {
+        sectionsRes.data.data.slice(-2).forEach((item) => {
           activities.push({
             type: "section",
             action: "created",
@@ -71,8 +95,7 @@ const AdminDashboard = () => {
       }
 
       if (categoriesRes.data.data?.length > 0) {
-        const latest = categoriesRes.data.data.slice(-2);
-        latest.forEach((item) => {
+        categoriesRes.data.data.slice(-2).forEach((item) => {
           activities.push({
             type: "category",
             action: "created",
@@ -84,8 +107,7 @@ const AdminDashboard = () => {
       }
 
       if (varietiesRes.data.data?.length > 0) {
-        const latest = varietiesRes.data.data.slice(-2);
-        latest.forEach((item) => {
+        varietiesRes.data.data.slice(-2).forEach((item) => {
           activities.push({
             type: "variety",
             action: "created",
@@ -97,8 +119,7 @@ const AdminDashboard = () => {
       }
 
       if (plantsRes.data.data?.length > 0) {
-        const latest = plantsRes.data.data.slice(-2);
-        latest.forEach((item) => {
+        plantsRes.data.data.slice(-2).forEach((item) => {
           activities.push({
             type: "plant",
             action: "created",
@@ -109,12 +130,7 @@ const AdminDashboard = () => {
         });
       }
 
-      // Sort by date (most recent first) and take top 4
-      setRecentActivity(
-        activities
-          .sort((a, b) => new Date(b.time) - new Date(a.time))
-          .slice(0, 4),
-      );
+      setRecentActivity(activities.sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5));
     } catch (error) {
       console.error("Failed to fetch stats:", error);
       setError("Failed to load dashboard data. Please try again.");
@@ -123,378 +139,430 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
+
   const statCards = [
-    {
-      label: "Sections",
-      value: stats.sections,
-      icon: "📑",
-      link: "/admin/sections",
-      gradient: "from-blue-500 to-blue-600",
-      bgLight: "bg-blue-50",
-      bgDark: "dark:bg-blue-900/20",
-      textLight: "text-blue-600",
-      textDark: "dark:text-blue-400",
-      description: "Organize your main plant categories",
-    },
-    {
-      label: "Categories",
-      value: stats.categories,
-      icon: "📂",
-      link: "/admin/categories",
-      gradient: "from-green-500 to-green-600",
-      bgLight: "bg-green-50",
-      bgDark: "dark:bg-green-900/20",
-      textLight: "text-green-600",
-      textDark: "dark:text-green-400",
-      description: "Create categories under sections",
-    },
-    {
-      label: "Varieties",
-      value: stats.varieties,
-      icon: "🔖",
-      link: "/admin/varieties",
-      gradient: "from-purple-500 to-purple-600",
-      bgLight: "bg-purple-50",
-      bgDark: "dark:bg-purple-900/20",
-      textLight: "text-purple-600",
-      textDark: "dark:text-purple-400",
-      description: "Add specific varieties to categories",
-    },
-    {
-      label: "Plants",
-      value: stats.plants,
-      icon: "🌱",
-      link: "/admin/plants",
-      gradient: "from-orange-500 to-orange-600",
-      bgLight: "bg-orange-50",
-      bgDark: "dark:bg-orange-900/20",
-      textLight: "text-orange-600",
-      textDark: "dark:text-orange-400",
-      description: "Manage all your plant inventory",
-    },
+    { label: "Sections", value: stats.sections, icon: "📑", link: "/admin/sections", color: "blue", description: "Manage main categories" },
+    { label: "Categories", value: stats.categories, icon: "📂", link: "/admin/categories", color: "green", description: "Organize sub-categories" },
+    { label: "Varieties", value: stats.varieties, icon: "🔖", link: "/admin/varieties", color: "purple", description: "Add specific varieties" },
+    { label: "Plants", value: stats.plants, icon: "🌱", link: "/admin/plants", color: "orange", description: "Manage inventory" },
   ];
 
   const quickActions = [
-    {
-      title: "Add Section",
-      icon: "➕",
-      link: "/admin/sections",
-      bgClass: "bg-blue-100 dark:bg-blue-900/30",
-      textClass: "text-blue-600 dark:text-blue-400",
-      description: "Create a new section",
-    },
-    {
-      title: "Add Category",
-      icon: "➕",
-      link: "/admin/categories",
-      bgClass: "bg-green-100 dark:bg-green-900/30",
-      textClass: "text-green-600 dark:text-green-400",
-      description: "Create a new category",
-    },
-    {
-      title: "Add Variety",
-      icon: "➕",
-      link: "/admin/varieties",
-      bgClass: "bg-purple-100 dark:bg-purple-900/30",
-      textClass: "text-purple-600 dark:text-purple-400",
-      description: "Create a new variety",
-    },
-    {
-      title: "Add Plant",
-      icon: "➕",
-      link: "/admin/plants",
-      bgClass: "bg-orange-100 dark:bg-orange-900/30",
-      textClass: "text-orange-600 dark:text-orange-400",
-      description: "Create a new plant",
-    },
+    { title: "Add Section", icon: "➕", link: "/admin/sections", color: "blue", description: "Create new section" },
+    { title: "Add Category", icon: "➕", link: "/admin/categories", color: "green", description: "Create new category" },
+    { title: "Add Variety", icon: "➕", link: "/admin/varieties", color: "purple", description: "Create new variety" },
+    { title: "Add Plant", icon: "➕", link: "/admin/plants", color: "orange", description: "Create new plant" },
   ];
 
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case "section": return "📑";
-      case "category": return "📂";
-      case "variety": return "🔖";
-      case "plant": return "🌱";
-      default: return "📌";
-    }
+  const menuItems = [
+    { path: '/admin', label: 'Dashboard', icon: '📊', active: true },
+    { path: '/admin/sections', label: 'Sections', icon: '📑' },
+    { path: '/admin/categories', label: 'Categories', icon: '📂' },
+    { path: '/admin/varieties', label: 'Varieties', icon: '🔖' },
+    { path: '/admin/plants', label: 'Plants', icon: '🌱' },
+  ];
+
+  const slideIn = {
+    hidden: { x: '-100%', opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { type: 'spring', damping: 25, stiffness: 200 } },
+    exit: { x: '-100%', opacity: 0, transition: { duration: 0.3 } }
   };
 
-  const getActivityColor = (type) => {
-    switch (type) {
-      case "section": return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
-      case "category": return "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400";
-      case "variety": return "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
-      case "plant": return "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400";
-      default: return "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400";
-    }
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.3 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } }
   };
+
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  };
+
+  const StatCard = ({ stat, index }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={{ y: -4 }}
+      className="group relative"
+    >
+      <Link to={stat.link}>
+        <div className="relative overflow-hidden bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20 hover:border-green-500/50 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="flex items-start justify-between mb-4">
+            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br from-${stat.color}-500/20 to-${stat.color}-600/20 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-300`}>
+              {stat.icon}
+            </div>
+            <div className="text-right">
+              {loading ? (
+                <div className="w-16 h-8 bg-white/10 rounded-lg animate-pulse" />
+              ) : (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 200, delay: index * 0.1 + 0.3 }}
+                  className="text-3xl font-bold text-white"
+                >
+                  {stat.value}
+                </motion.div>
+              )}
+              <div className="text-xs text-white/50 mt-1">Total</div>
+            </div>
+          </div>
+          <h3 className="text-white font-semibold text-lg mb-1">{stat.label}</h3>
+          <p className="text-white/40 text-sm">{stat.description}</p>
+          <div className="mt-4 flex items-center text-green-400 text-sm font-medium group-hover:translate-x-2 transition-transform">
+            Manage
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
 
   return (
     <>
       <Helmet>
-        <title>Admin Dashboard - HomeGarden</title>
+        <title>Admin Dashboard | HomeGarden</title>
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        {/* Decorative Header */}
-        <div className="bg-gradient-to-r from-green-600 to-green-800 dark:from-green-800 dark:to-green-900 text-white">
-          <div className="container mx-auto px-4 py-8 md:py-12">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
-                  {greeting}, {user?.name?.split(' ')[0] || "Admin"}! 👋
-                </h1>
-                <p className="text-green-100 text-sm md:text-base max-w-2xl">
-                  Welcome to your dashboard. Here's what's happening with your nursery today.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        {/* Premium Sticky Header */}
+        <motion.header
+          initial={{ y: -100 }}
+          animate={{ y: 0 }}
+          className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'bg-gray-900/80 backdrop-blur-xl shadow-2xl' : 'bg-transparent'
+            }`}
+        >
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              {/* Logo & Menu Toggle */}
+              <div className="flex items-center gap-4">
                 <button
-                  onClick={fetchStats}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
-                  title="Refresh stats"
-                  disabled={loading}
+                  onClick={() => setIsMenuOpen(true)}
+                  className="lg:hidden p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200"
                 >
-                  <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </button>
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-5">
-                  <div className="text-3xl">🌿</div>
+                <div className="flex items-center gap-3">
+                  <motion.span
+                    whileHover={{ rotate: 15, scale: 1.1 }}
+                    className="text-3xl"
+                  >
+                    🌿
+                  </motion.span>
                   <div>
-                    <div className="text-xs opacity-80">Total Plants</div>
-                    <div className="text-2xl font-bold">{stats.plants}</div>
+                    <h1 className="text-xl font-bold text-white">HomeGarden</h1>
+                    <p className="text-xs text-white/50">Admin Portal</p>
                   </div>
                 </div>
               </div>
+
+              {/* Right Section */}
+              <div className="flex items-center gap-4">
+                {/* Notification Bell */}
+                <button className="relative p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-200">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                </button>
+
+                {/* User Profile */}
+                <div className="flex items-center gap-3">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-white text-sm font-medium">{greeting}, {user?.name?.split(' ')[0]}</p>
+                    <p className="text-white/40 text-xs">{formatDate(currentTime)}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="p-2 rounded-xl bg-white/10 hover:bg-red-500/20 transition-all duration-200 group"
+                  >
+                    <svg className="w-5 h-5 text-white/70 group-hover:text-red-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Time Display - Mobile */}
+            <div className="mt-3 text-center sm:hidden">
+              <p className="text-white/60 text-xs">{formatDate(currentTime)} • {formatTime(currentTime)}</p>
             </div>
           </div>
-        </div>
+        </motion.header>
 
-        <div className="container mx-auto px-4 -mt-6 md:-mt-8">
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
-              <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
+        {/* Main Content */}
+        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+          {/* Welcome Hero - Reduced Height */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <div className="relative overflow-hidden bg-gradient-to-r from-green-600/20 to-emerald-600/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full filter blur-3xl" />
+              <div>
+                <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">
+                  {greeting}, {user?.name?.split(' ')[0]}! 👋
+                </h2>
+                <p className="text-white/60 text-sm max-w-2xl">
+                  Welcome back to your dashboard. Here's your nursery performance overview.
+                </p>
+              </div>
             </div>
-          )}
+          </motion.div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            {statCards.map((stat, index) => (
+              <StatCard key={stat.label} stat={stat} index={index} />
+            ))}
+          </div>
 
           {/* Quick Actions Section */}
-          <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-1 h-6 bg-green-600 rounded-full"></span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <h3 className="text-white font-semibold text-lg mb-4 flex items-center gap-2">
+              <span className="w-1 h-5 bg-green-500 rounded-full" />
               Quick Actions
-            </h2>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            </h3>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {quickActions.map((action, index) => (
-                <Link
+                <motion.div
                   key={index}
-                  to={action.link}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 hover:shadow-xl transition-all transform hover:-translate-y-1 group relative overflow-hidden"
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 opacity-0 group-hover:opacity-10 transition-opacity" />
-                  <div className="relative">
-                    <div className={`w-10 h-10 rounded-full ${action.bgClass} flex items-center justify-center text-xl mb-2`}>
+                  <Link
+                    to={action.link}
+                    className="block bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-green-500/50 transition-all duration-300 group"
+                  >
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-${action.color}-500/20 to-${action.color}-600/20 flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform`}>
                       {action.icon}
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
-                      {action.title}
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {action.description}
-                    </p>
-                  </div>
-                </Link>
+                    <h4 className="text-white font-semibold text-sm mb-1">{action.title}</h4>
+                    <p className="text-white/40 text-xs">{action.description}</p>
+                  </Link>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Management Cards */}
-          <div className="mt-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-1 h-6 bg-green-600 rounded-full"></span>
-              Management
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {statCards.map((item, index) => (
-                <Link
-                  key={index}
-                  to={item.link}
-                  className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1"
-                >
-                  <div className={`h-2 bg-gradient-to-r ${item.gradient}`} />
-                  <div className="p-5">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className={`w-12 h-12 ${item.bgLight} ${item.bgDark} rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
-                        {item.icon}
-                      </div>
-                      <div>
-                        <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                          {loading ? (
-                            <div className="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                          ) : (
-                            item.value
-                          )}
-                        </div>
-                        <div className={`text-xs font-medium ${item.textLight} ${item.textDark}`}>
-                          Total {item.label}
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
-                      {item.description}
-                    </p>
-                    <div className="flex items-center text-green-600 dark:text-green-400 text-sm font-medium group-hover:translate-x-2 transition-transform">
-                      Manage {item.label}
-                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Activity and Tips Grid */}
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Recent Activity - Takes 2 columns on large screens */}
-            <div className="lg:col-span-2">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden h-full">
-                <div className="p-5 border-b border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span className="w-1 h-5 bg-green-600 rounded-full"></span>
+          {/* Analytics & Activity Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Recent Activity - Premium Timeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="lg:col-span-2"
+            >
+              <div className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden">
+                <div className="p-5 border-b border-white/10">
+                  <h3 className="text-white font-semibold text-lg flex items-center gap-2">
+                    <span className="w-1 h-5 bg-green-500 rounded-full" />
                     Recent Activity
                   </h3>
                 </div>
-
                 {loading ? (
                   <div className="p-6 space-y-4">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                      <div key={i} className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-white/10 rounded-xl animate-pulse" />
                         <div className="flex-1">
-                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse mb-2"></div>
-                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
+                          <div className="h-4 bg-white/10 rounded w-3/4 animate-pulse mb-2" />
+                          <div className="h-3 bg-white/10 rounded w-1/2 animate-pulse" />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : recentActivity.length > 0 ? (
-                  <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {recentActivity.map((activity, index) => (
-                      <div
-                        key={index}
-                        className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  <div className="divide-y divide-white/10">
+                    {recentActivity.map((activity, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="p-4 hover:bg-white/5 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <div
-                            className={`w-10 h-10 rounded-xl ${getActivityColor(activity.type)} flex items-center justify-center text-lg flex-shrink-0`}
-                          >
+                          <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center text-xl">
                             {activity.icon}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-gray-900 dark:text-white font-medium truncate">
-                              <span className="font-semibold">{activity.name}</span>{" "}
-                              <span className="text-gray-500 dark:text-gray-400 text-sm">was {activity.action}</span>
+                          <div className="flex-1">
+                            <p className="text-white text-sm">
+                              <span className="font-semibold">{activity.name}</span>
+                              <span className="text-white/60"> was {activity.action}</span>
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {activity.time}
-                            </p>
+                            <p className="text-white/40 text-xs mt-1">{activity.time}</p>
                           </div>
-                          <span
-                            className={`text-xs px-2 py-1 rounded-full ${getActivityColor(activity.type)} hidden sm:block`}
-                          >
+                          <span className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">
                             {activity.type}
                           </span>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 ) : (
-                  <div className="p-10 text-center">
-                    <div className="text-6xl mb-4 opacity-30">📊</div>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      No recent activity
-                    </p>
-                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
-                      Start by adding items to your nursery
-                    </p>
+                  <div className="p-12 text-center">
+                    <div className="text-5xl mb-3 opacity-30">📊</div>
+                    <p className="text-white/60">No recent activity</p>
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Tips Column */}
+            {/* Info Cards - Premium Glass Design */}
             <div className="space-y-4">
-              {/* Quick Tips */}
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-5 shadow-lg">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-green-200 dark:bg-green-800 rounded-xl flex items-center justify-center text-xl">
-                    💡
+              {[
+                { icon: '💡', title: 'Pro Tip', content: 'Organize your plants in a hierarchy: Sections → Categories → Varieties for better navigation.', color: 'green' },
+                { icon: '🚀', title: 'Quick Start', content: 'Start by adding Sections, then Categories, then Varieties, and finally Plants.', color: 'blue' },
+                { icon: '📸', title: 'Images', content: 'Add high-quality images to all items. First image is primary. You can add up to 3 images per plant.', color: 'purple' },
+              ].map((card, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + idx * 0.1 }}
+                  whileHover={{ y: -2 }}
+                  className={`bg-gradient-to-r from-${card.color}-500/10 to-${card.color}-600/10 backdrop-blur-sm rounded-xl p-4 border border-${card.color}-500/20`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-xl bg-${card.color}-500/20 flex items-center justify-center text-xl`}>
+                      {card.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold text-sm mb-1">{card.title}</h4>
+                      <p className="text-white/60 text-xs leading-relaxed">{card.content}</p>
+                    </div>
                   </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Pro Tip</h4>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Organize your plants in a hierarchy: Sections → Categories → Varieties for better navigation and customer experience.
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-5 shadow-lg">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-blue-200 dark:bg-blue-800 rounded-xl flex items-center justify-center text-xl">
-                    🚀
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Quick Start</h4>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Start by adding Sections, then Categories, then Varieties, and finally Plants.
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-5 shadow-lg">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-purple-200 dark:bg-purple-800 rounded-xl flex items-center justify-center text-xl">
-                    📸
-                  </div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">Images</h4>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Add high-quality images to all items. First image is primary. You can add up to 3 images per plant.
-                </p>
-              </div>
+                </motion.div>
+              ))}
             </div>
           </div>
 
-          {/* Footer Stats */}
-          <div className="mt-8 mb-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+          {/* Stats Summary Footer */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 p-4"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Sections: {stats.sections}</span>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                  <span className="text-white/60 text-xs">Sections: {stats.sections}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Categories: {stats.categories}</span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-white/60 text-xs">Categories: {stats.categories}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Varieties: {stats.varieties}</span>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                  <span className="text-white/60 text-xs">Varieties: {stats.varieties}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Plants: <span className="font-bold text-orange-600 dark:text-orange-400">{stats.plants}</span></span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                  <span className="text-white/60 text-xs">Plants: <span className="text-orange-400 font-semibold">{stats.plants}</span></span>
                 </div>
               </div>
-              <div className="text-xs text-gray-500 dark:text-gray-500">
-                Last updated: {lastUpdated.toLocaleTimeString()}
+              <div className="text-white/40 text-[11px]">
+                Last updated: {currentTime.toLocaleTimeString()}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
+
+        {/* Premium Mobile Drawer */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <>
+              <motion.div
+                variants={backdropVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                onClick={() => setIsMenuOpen(false)}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 lg:hidden"
+              />
+              <motion.div
+                variants={slideIn}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="fixed top-0 left-0 bottom-0 w-[280px] bg-gradient-to-br from-gray-900 to-gray-950 backdrop-blur-xl z-50 shadow-2xl rounded-r-3xl lg:hidden"
+              >
+                <div className="p-5 border-b border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-3xl">🌿</span>
+                      <span className="text-lg font-bold text-white">HomeGarden</span>
+                    </div>
+                    <button
+                      onClick={() => setIsMenuOpen(false)}
+                      className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all"
+                    >
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="mt-4 p-3 bg-white/10 rounded-xl">
+                    <p className="text-white/60 text-xs">Logged in as</p>
+                    <p className="text-white font-medium text-sm">{user?.name}</p>
+                  </div>
+                </div>
+                <div className="p-4">
+                  {menuItems.map((item, idx) => (
+                    <Link
+                      key={idx}
+                      to={item.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-all duration-200 ${item.active
+                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white'
+                          : 'text-white/70 hover:text-white hover:bg-white/10'
+                        }`}
+                    >
+                      <span className="text-xl">{item.icon}</span>
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </Link>
+                  ))}
+                  <div className="h-px bg-white/10 my-3" />
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200"
+                  >
+                    <span className="text-xl">🚪</span>
+                    <span className="text-sm font-medium">Logout</span>
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );

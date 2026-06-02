@@ -330,44 +330,65 @@ const Header = () => {
                 {/* Divider */}
                 <div className="h-px bg-white/10 my-3 mx-4" />
 
-                {/* Admin Section */}
-                {isAuthenticated && adminItems.map((item, index) => (
+                {/* Admin Section - Different for authenticated vs non-authenticated */}
+                {isAuthenticated ? (
+                  <>
+                    {/* Admin Dashboard for logged in users */}
+                    {adminItems.map((item, index) => (
+                      <motion.div
+                        key={item.path}
+                        custom={menuItems.length + index}
+                        variants={menuItemVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <Link
+                          to={item.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className={`flex items-center gap-3 mx-4 my-1 px-4 py-3 rounded-xl transition-all duration-200 ${item.active
+                              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
+                              : 'text-white/80 hover:text-white hover:bg-white/10'
+                            }`}
+                        >
+                          <span className="text-xl">{item.icon}</span>
+                          <span className="font-medium text-sm">{item.label}</span>
+                        </Link>
+                      </motion.div>
+                    ))}
+
+                    {/* Logout Button */}
+                    <motion.div
+                      custom={menuItems.length + adminItems.length}
+                      variants={menuItemVariants}
+                      initial="hidden"
+                      animate="visible"
+                    >
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 mx-4 my-1 px-4 py-3 rounded-xl transition-all duration-200 text-red-300 hover:text-red-200 hover:bg-red-500/20 w-full"
+                      >
+                        <span className="text-xl">🚪</span>
+                        <span className="font-medium text-sm">Logout</span>
+                      </button>
+                    </motion.div>
+                  </>
+                ) : (
+                  /* Admin Login for non-authenticated users - THIS WAS MISSING */
                   <motion.div
-                    key={item.path}
-                    custom={menuItems.length + index}
+                    custom={menuItems.length}
                     variants={menuItemVariants}
                     initial="hidden"
                     animate="visible"
                   >
                     <Link
-                      to={item.path}
+                      to="/admin/login"
                       onClick={() => setIsMenuOpen(false)}
-                      className={`flex items-center gap-3 mx-4 my-1 px-4 py-3 rounded-xl transition-all duration-200 ${item.active
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                          : 'text-white/80 hover:text-white hover:bg-white/10'
-                        }`}
+                      className="flex items-center gap-3 mx-4 my-1 px-4 py-3 rounded-xl transition-all duration-200 bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-xl"
                     >
-                      <span className="text-xl">{item.icon}</span>
-                      <span className="font-medium text-sm">{item.label}</span>
+                      <span className="text-xl">👨‍💼</span>
+                      <span className="font-medium text-sm">Admin Login</span>
+                      <span className="ml-auto text-xs opacity-80">→</span>
                     </Link>
-                  </motion.div>
-                ))}
-
-                {/* Logout Button */}
-                {isAuthenticated && (
-                  <motion.div
-                    custom={menuItems.length + adminItems.length}
-                    variants={menuItemVariants}
-                    initial="hidden"
-                    animate="visible"
-                  >
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-3 mx-4 my-1 px-4 py-3 rounded-xl transition-all duration-200 text-red-300 hover:text-red-200 hover:bg-red-500/20 w-full"
-                    >
-                      <span className="text-xl">🚪</span>
-                      <span className="font-medium text-sm">Logout</span>
-                    </button>
                   </motion.div>
                 )}
               </div>
