@@ -196,7 +196,7 @@ const PlantCard = ({ plant }) => {
           )}
           {varietyName && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-400 text-xs rounded-full font-medium border border-purple-200 dark:border-purple-800 shadow-sm">
-              <span className="text-purple-600 dark:text-purple-400 text-[10px]">🌸</span>
+              <span className="text-purple-600 dark:text-purple-400 text-[10px]"></span>
               {varietyName}
             </span>
           )}
