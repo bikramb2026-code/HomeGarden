@@ -67,13 +67,13 @@ const AdminLogin = () => {
         <meta name="description" content="Secure admin portal access for HomeGarden nursery management system." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden relative">
-        {/* Animated Background Particles */}
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden relative">
+        {/* Animated Background Particles - visible in both themes */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {particles.map((particle) => (
             <motion.div
               key={particle.id}
-              className="absolute bg-green-500/20 rounded-full"
+              className="absolute bg-green-500/30 dark:bg-green-400/20 rounded-full"
               style={{
                 left: `${particle.x}%`,
                 top: `${particle.y}%`,
@@ -83,7 +83,7 @@ const AdminLogin = () => {
               animate={{
                 y: [0, -30, 0, 30, 0],
                 x: [0, 20, 0, -20, 0],
-                opacity: [0.2, 0.5, 0.2],
+                opacity: [0.2, 0.6, 0.2],
               }}
               transition={{
                 duration: particle.duration,
@@ -95,10 +95,10 @@ const AdminLogin = () => {
           ))}
         </div>
 
-        {/* Gradient Orbs */}
-        <div className="absolute top-0 -left-40 w-80 h-80 bg-green-500/30 rounded-full filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 -right-40 w-80 h-80 bg-emerald-500/30 rounded-full filter blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-600/10 rounded-full filter blur-3xl" />
+        {/* Gradient Orbs - visible both themes */}
+        <div className="absolute top-0 -left-40 w-80 h-80 bg-green-500/20 dark:bg-green-500/10 rounded-full filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 -right-40 w-80 h-80 bg-emerald-500/20 dark:bg-emerald-500/10 rounded-full filter blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-600/5 dark:bg-green-600/5 rounded-full filter blur-3xl" />
 
         {/* Main Content */}
         <motion.div
@@ -119,8 +119,8 @@ const AdminLogin = () => {
               {/* Logo */}
               <div className="flex justify-center mb-6">
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
-                  <div className="relative bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-4 border border-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+                  <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700 shadow-lg">
                     <motion.span
                       whileHover={{ rotate: 15, scale: 1.1 }}
                       className="text-5xl inline-block cursor-pointer"
@@ -132,28 +132,28 @@ const AdminLogin = () => {
               </div>
 
               {/* Brand Name */}
-              <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-white via-green-200 to-emerald-200 bg-clip-text text-transparent mb-2">
+              <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-gray-800 to-green-700 dark:from-white dark:to-green-300 bg-clip-text text-transparent mb-2">
                 HomeGarden
               </h1>
-              <p className="text-white/40 text-sm uppercase tracking-wider mb-4">
+              <p className="text-gray-500 dark:text-white/40 text-sm uppercase tracking-wider mb-4">
                 Admin Portal • Enterprise Access
               </p>
 
-              {/* Security Badges */}
+              {/* Security Badges - good contrast */}
               <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 backdrop-blur-sm rounded-full border border-green-500/20 text-green-400 text-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 dark:bg-green-500/10 backdrop-blur-sm rounded-full border border-green-300 dark:border-green-500/20 text-green-700 dark:text-green-400 text-xs">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                   </svg>
                   <span>Secure Login</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 backdrop-blur-sm rounded-full border border-blue-500/20 text-blue-400 text-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 dark:bg-blue-500/10 backdrop-blur-sm rounded-full border border-blue-300 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 text-xs">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                   </svg>
                   <span>Protected Access</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-500/10 backdrop-blur-sm rounded-full border border-purple-500/20 text-purple-400 text-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-100 dark:bg-purple-500/10 backdrop-blur-sm rounded-full border border-purple-300 dark:border-purple-500/20 text-purple-700 dark:text-purple-400 text-xs">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M2.94 6.412A2 2 0 002 8.108V16a2 2 0 002 2h12a2 2 0 002-2V8.108a2 2 0 00-.94-1.696l-6-3.75a2 2 0 00-2.12 0l-6 3.75zm2.615 2.423a1 1 0 10-1.11 1.664l5 3.333a1 1 0 001.11 0l5-3.333a1 1 0 00-1.11-1.664L10 11.798 5.555 8.835z" clipRule="evenodd" />
                   </svg>
@@ -173,13 +173,13 @@ const AdminLogin = () => {
               <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-500" />
 
               {/* Card Content */}
-              <div className="relative bg-white/5 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 shadow-2xl">
+              <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 shadow-2xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Email Field with Floating Label */}
                   <div className="space-y-2">
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg className={`w-5 h-5 transition-colors duration-200 ${emailFocused || email ? 'text-green-400' : 'text-white/30'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-5 h-5 transition-colors duration-200 ${emailFocused || email ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-white/30'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                         </svg>
                       </div>
@@ -189,13 +189,13 @@ const AdminLogin = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         onFocus={() => setEmailFocused(true)}
                         onBlur={() => setEmailFocused(false)}
-                        className="w-full pl-12 pr-4 py-3 bg-white/5 border-2 rounded-xl focus:outline-none transition-all duration-200 text-white placeholder-white/30
-                                 border-white/10 focus:border-green-500 hover:border-white/20"
+                        className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-700/50 border-2 rounded-xl focus:outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30
+                                 border-gray-300 dark:border-gray-600 focus:border-green-500 hover:border-gray-400 dark:hover:border-gray-500"
                         placeholder="admin@homegarden.com"
                         required
                       />
-                      <label className={`absolute left-12 transition-all duration-200 pointer-events-none text-white/50
-                        ${emailFocused || email ? 'text-xs -top-2 bg-gray-900 px-1 text-green-400' : 'text-base top-3'}`}>
+                      <label className={`absolute left-12 transition-all duration-200 pointer-events-none
+                        ${emailFocused || email ? 'text-xs -top-2 bg-white dark:bg-gray-800 px-1 text-green-600 dark:text-green-400' : 'text-base top-3 text-gray-500 dark:text-white/50'}`}>
                         Email Address
                       </label>
                     </div>
@@ -205,7 +205,7 @@ const AdminLogin = () => {
                   <div className="space-y-2">
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg className={`w-5 h-5 transition-colors duration-200 ${passwordFocused || password ? 'text-green-400' : 'text-white/30'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className={`w-5 h-5 transition-colors duration-200 ${passwordFocused || password ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-white/30'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </div>
@@ -215,13 +215,13 @@ const AdminLogin = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setPasswordFocused(true)}
                         onBlur={() => setPasswordFocused(false)}
-                        className="w-full pl-12 pr-12 py-3 bg-white/5 border-2 rounded-xl focus:outline-none transition-all duration-200 text-white placeholder-white/30
-                                 border-white/10 focus:border-green-500 hover:border-white/20"
+                        className="w-full pl-12 pr-12 py-3 bg-white dark:bg-gray-700/50 border-2 rounded-xl focus:outline-none transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-white/30
+                                 border-gray-300 dark:border-gray-600 focus:border-green-500 hover:border-gray-400 dark:hover:border-gray-500"
                         placeholder="••••••••"
                         required
                       />
-                      <label className={`absolute left-12 transition-all duration-200 pointer-events-none text-white/50
-                        ${passwordFocused || password ? 'text-xs -top-2 bg-gray-900 px-1 text-green-400' : 'text-base top-3'}`}>
+                      <label className={`absolute left-12 transition-all duration-200 pointer-events-none
+                        ${passwordFocused || password ? 'text-xs -top-2 bg-white dark:bg-gray-800 px-1 text-green-600 dark:text-green-400' : 'text-base top-3 text-gray-500 dark:text-white/50'}`}>
                         Password
                       </label>
                       <button
@@ -229,7 +229,7 @@ const AdminLogin = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute inset-y-0 right-0 pr-4 flex items-center"
                       >
-                        <svg className="w-5 h-5 text-white/40 hover:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-gray-400 hover:text-gray-600 dark:text-white/40 dark:hover:text-white/60 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           {showPassword ? (
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                           ) : (
@@ -243,21 +243,19 @@ const AdminLogin = () => {
                   {/* Remember Me & Forgot Password */}
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer group">
-                      <div className="relative">
-                        <input
-                          type="checkbox"
-                          checked={rememberMe}
-                          onChange={(e) => setRememberMe(e.target.checked)}
-                          className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-green-500 checked:border-green-500 focus:ring-green-500 focus:ring-offset-0 cursor-pointer"
-                        />
-                      </div>
-                      <span className="text-sm text-white/60 group-hover:text-white/80 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-green-600 focus:ring-green-500 dark:bg-gray-700"
+                      />
+                      <span className="text-sm text-gray-600 dark:text-white/60 group-hover:text-gray-800 dark:group-hover:text-white/80 transition-colors">
                         Remember me
                       </span>
                     </label>
                     <a
                       href="#"
-                      className="text-sm text-green-400 hover:text-green-300 transition-colors font-medium"
+                      className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors font-medium"
                     >
                       Forgot password?
                     </a>
@@ -272,7 +270,7 @@ const AdminLogin = () => {
                     className="w-full relative group overflow-hidden rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 
                              hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 
                              transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 
-                             focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                             focus:ring-offset-white dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
                              shadow-lg hover:shadow-xl"
                   >
                     <span className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -300,22 +298,22 @@ const AdminLogin = () => {
                 {/* Divider */}
                 <div className="relative my-6">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
+                    <div className="w-full border-t border-gray-200 dark:border-white/10"></div>
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="px-2 bg-transparent text-white/30">Enterprise Access Only</span>
+                    <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-white/30">Enterprise Access Only</span>
                   </div>
                 </div>
 
                 {/* Trust Indicators */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-white/40 justify-center">
-                    <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-white/40 justify-center">
+                    <svg className="w-4 h-4 text-green-600 dark:text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                     <span>Two-Factor Authentication Available</span>
                   </div>
-                  <div className="text-center text-white/30 text-[11px]">
+                  <div className="text-center text-gray-400 dark:text-white/30 text-[11px]">
                     Protected by HomeGarden Enterprise Security
                   </div>
                 </div>
@@ -329,7 +327,7 @@ const AdminLogin = () => {
               transition={{ delay: 0.6 }}
               className="text-center"
             >
-              <p className="text-white/30 text-xs">
+              <p className="text-gray-500 dark:text-white/30 text-xs">
                 © 2026 HomeGarden. All rights reserved.
               </p>
             </motion.div>
