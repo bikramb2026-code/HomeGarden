@@ -18,7 +18,7 @@ const Home = () => {
     plants: 0,
     categories: 0,
     varieties: 0,
-    customers: '1k+'
+    customers: '2k+'
   });
   const [loading, setLoading] = useState(true);
 
@@ -30,19 +30,16 @@ const Home = () => {
     try {
       setLoading(true);
 
-      // Fetch all sections
       const sectionsRes = await api.get('/sections');
       const allSections = sectionsRes.data.data || [];
       const firstSixSections = allSections.slice(0, 6);
       setSections(firstSixSections);
 
-      // Fetch all plants
       const plantsRes = await api.get('/plants');
       const plants = plantsRes.data.data || [];
       setAllPlants(plants);
       setFeaturedPlants(plants.slice(0, 8));
 
-      // Fetch counts for stats
       const categoriesRes = await api.get('/categories');
       const varietiesRes = await api.get('/varieties');
 
@@ -53,7 +50,6 @@ const Home = () => {
         customers: '2k+'
       });
 
-      // Fetch plant counts for each section
       const sectionsWithPlantCounts = await Promise.all(
         firstSixSections.map(async (section) => {
           try {
@@ -75,11 +71,9 @@ const Home = () => {
     }
   };
 
-  // Filter plants based on search and tab
   const filteredPlants = useMemo(() => {
     let plants = [...featuredPlants];
 
-    // Apply search filter
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       plants = plants.filter(plant =>
@@ -88,7 +82,6 @@ const Home = () => {
       );
     }
 
-    // Apply tab filter
     if (activeTab === 'bestsellers') {
       plants = plants.filter(plant => plant.isBestSeller);
     } else if (activeTab === 'newarrivals') {
@@ -142,7 +135,6 @@ const Home = () => {
 
       {/* Hero Section - Premium Modern Design */}
       <section className="relative h-[90vh] md:h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Zoom Animation */}
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=1600&auto=format&fit=crop"
@@ -152,7 +144,6 @@ const Home = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
         </div>
 
-        {/* Floating Leaf Animations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(12)].map((_, i) => (
             <div
@@ -170,7 +161,6 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Hero Content */}
         <div className="relative container mx-auto px-4 z-10">
           <motion.div
             initial="initial"
@@ -178,7 +168,6 @@ const Home = () => {
             variants={staggerContainer}
             className="max-w-4xl mx-auto text-center"
           >
-            {/* Trust Badge */}
             <motion.div
               variants={fadeInUp}
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full mb-6 border border-white/20"
@@ -204,7 +193,6 @@ const Home = () => {
               Discover our curated collection of {stats.plants}+ premium plants. Each plant is hand-picked and nurtured with care.
             </motion.p>
 
-            {/* Trust Indicators */}
             <motion.div
               variants={fadeInUp}
               className="flex flex-wrap items-center justify-center gap-3 mb-8"
@@ -220,7 +208,6 @@ const Home = () => {
               ))}
             </motion.div>
 
-            {/* CTA Buttons */}
             <motion.div
               variants={fadeInUp}
               className="flex flex-col sm:flex-row gap-4 justify-center"
@@ -249,7 +236,6 @@ const Home = () => {
               </Link>
             </motion.div>
 
-            {/* Stats */}
             <motion.div
               variants={fadeInUp}
               className="grid grid-cols-3 gap-4 md:gap-8 mt-12 max-w-2xl mx-auto"
@@ -270,7 +256,6 @@ const Home = () => {
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
@@ -282,8 +267,8 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* Categories Section - Premium Design */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+      {/* Categories Section - Fixed Dark/Light Mode */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -299,14 +284,14 @@ const Home = () => {
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                 Shop by Category
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 max-w-2xl">
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl">
                 Explore our featured categories and find your perfect green companion.
               </p>
             </div>
 
             <Link
               to="/categories"
-              className="group inline-flex items-center text-green-600 dark:text-green-400 font-semibold mt-4 md:mt-0 hover:text-green-700 transition-colors"
+              className="group inline-flex items-center text-green-600 dark:text-green-400 font-semibold mt-4 md:mt-0 hover:text-green-700 dark:hover:text-green-300 transition-colors"
             >
               <span>View All Categories</span>
               <svg className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -337,8 +322,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Plants Section - With Tabs & Search */}
-      <section className="py-16 md:py-24 bg-white dark:bg-gray-800">
+      {/* Featured Plants Section - Fixed Dark/Light Mode */}
+      <section className="py-16 md:py-24 bg-white dark:bg-gray-800 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -353,12 +338,11 @@ const Home = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Featured Plants
             </h2>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Hand-selected premium plants that our customers love
             </p>
           </motion.div>
 
-          {/* Premium Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
             {tabs.map((tab) => (
               <button
@@ -384,7 +368,6 @@ const Home = () => {
             ))}
           </div>
 
-          {/* Premium Search Bar */}
           <div className="max-w-md mx-auto mb-10">
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
@@ -394,7 +377,7 @@ const Home = () => {
                   placeholder="Search plants by name or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white text-sm placeholder-gray-500 transition-all"
+                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 dark:text-white text-sm placeholder-gray-500 dark:placeholder-gray-400 transition-all"
                 />
                 <svg
                   className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-green-500 transition-colors"
@@ -407,7 +390,7 @@ const Home = () => {
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     ✕
                   </button>
@@ -432,7 +415,7 @@ const Home = () => {
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm('')}
-                      className="mt-4 text-green-600 hover:text-green-700 font-medium"
+                      className="mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium"
                     >
                       Clear Search
                     </button>
@@ -470,7 +453,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Why Choose Us Section - Premium Glassmorphism */}
+      {/* Why Choose Us Section - Fixed Dark/Light Mode */}
       <section className="py-16 md:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-0 w-96 h-96 bg-green-500 rounded-full filter blur-3xl"></div>
@@ -527,8 +510,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Delivery Section - Premium Compact Design */}
-      <section className="py-16 md:py-20 bg-white dark:bg-gray-800">
+      {/* Delivery Section - Fixed Dark/Light Mode */}
+      <section className="py-16 md:py-20 bg-white dark:bg-gray-800 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -568,7 +551,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section - Premium */}
+      {/* CTA Section - Fixed Dark/Light Mode */}
       <section className="py-16 md:py-20 bg-gradient-to-r from-green-600 to-emerald-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full filter blur-3xl"></div>
@@ -600,7 +583,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Floating WhatsApp Button - Premium */}
+      {/* Floating WhatsApp Button */}
       <a
         href="https://wa.me/918597511728"
         target="_blank"
@@ -613,7 +596,6 @@ const Home = () => {
         <div className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500"></div>
       </a>
 
-      {/* Custom Animations */}
       <style>{`
         @keyframes slow-zoom {
           0% { transform: scale(1); }
