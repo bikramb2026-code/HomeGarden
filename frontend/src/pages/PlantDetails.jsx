@@ -121,13 +121,10 @@ const PlantDetails = () => {
   const inStock = plant.inStock !== false;
   const isPremium = plant.price >= 500;
 
+  // Simplified specifications
   const specifications = [
     { icon: '🌿', label: 'Plant Type', value: section?.name || 'N/A' },
-    { icon: '☀️', label: 'Sunlight', value: 'Full Sun to Partial Shade' },
     { icon: '💧', label: 'Watering', value: 'Regular, moderate watering' },
-    { icon: '📏', label: 'Plant Height', value: '2-3 feet at delivery' },
-    { icon: '🗓️', label: 'Fruiting Season', value: category?.name === 'Fruits' ? 'Year-round' : 'N/A' },
-    { icon: '🌱', label: 'Plant Age', value: '6-8 months' },
   ];
 
   const trustBadges = [
@@ -366,28 +363,6 @@ const PlantDetails = () => {
                 )}
               </div>
 
-              {/* Plant Information Card - Consistent with Plant Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-green-500 rounded-full"></span>
-                  Plant Information
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">🌱 Section</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{section?.name || 'N/A'}</p>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">📂 Category</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{category?.name || 'N/A'}</p>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">🍊 Variety</p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{variety?.name || 'N/A'}</p>
-                  </div>
-                </div>
-              </div>
-
               {/* Description */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
@@ -407,7 +382,7 @@ const PlantDetails = () => {
                 )}
               </div>
 
-              {/* Specifications */}
+              {/* Simplified Specifications */}
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                   <span className="w-1 h-5 bg-green-500 rounded-full"></span>
