@@ -307,7 +307,7 @@ const Variety = () => {
                       <div key={variety._id} className="group">
                         {hasPlant ? (
                           <Link
-                            to={`/categories/${section.slug}/${category.slug}/${plantSlug}`}
+                            to={`/categories/${section.slug}/${category.slug}/variety/${variety.slug}`}
                             className="block bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full border border-gray-100 dark:border-gray-700"
                           >
                             <div className="relative aspect-square overflow-hidden">

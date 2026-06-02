@@ -28,6 +28,7 @@ const ManageSections = lazy(() => import('./pages/Admin/ManageSections'));
 const ManageCategories = lazy(() => import('./pages/Admin/ManageCategories'));
 const ManageVariety = lazy(() => import('./pages/Admin/ManageVariety'));
 const ManagePlants = lazy(() => import('./pages/Admin/ManagePlants'));
+const VarietyPlants = lazy(() => import('./pages/VarietyPlants'));
 
 // Loading fallback
 const PageLoader = () => (
@@ -95,6 +96,10 @@ function App() {
             <Route path="/categories/:sectionSlug" element={<CategoryPage />} />
             <Route path="/categories/:sectionSlug/:categorySlug" element={<Variety />} />
             <Route path="/categories/:sectionSlug/:categorySlug/all" element={<PlantsPage />} />
+            <Route
+              path="/categories/:sectionSlug/:categorySlug/variety/:varietySlug"
+              element={<VarietyPlants />}
+            />
             <Route path="/categories/:sectionSlug/:categorySlug/:plantSlug" element={<PlantDetails />} />
 
             {/* Cart and Checkout Routes */}
