@@ -133,7 +133,7 @@ const Home = () => {
         <link rel="canonical" href="https://homegarden.co.in" />
       </Helmet>
 
-      {/* Hero Section - Premium Modern Design */}
+      {/* Hero Section - Always dark overlay, text white */}
       <section className="relative h-[90vh] md:h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img
@@ -267,7 +267,7 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* Categories Section - Fixed Dark/Light Mode */}
+      {/* Categories Section - Light/Dark Mode */}
       <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <motion.div
@@ -322,7 +322,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Plants Section - Fixed Dark/Light Mode */}
+      {/* Featured Plants Section - Light/Dark Mode */}
       <section className="py-16 md:py-24 bg-white dark:bg-gray-800 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <motion.div
@@ -453,9 +453,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Why Choose Us Section - Fixed Dark/Light Mode */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
+      {/* Why Choose Us Section - Now adapts to theme */}
+      <section className="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        <div className="absolute inset-0 opacity-10 dark:opacity-10 pointer-events-none">
           <div className="absolute top-0 left-0 w-96 h-96 bg-green-500 rounded-full filter blur-3xl"></div>
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-500 rounded-full filter blur-3xl"></div>
         </div>
@@ -468,25 +468,25 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto mb-12"
           >
-            <span className="text-green-400 font-semibold text-sm tracking-[0.2em] uppercase mb-2 block">
+            <span className="text-green-600 dark:text-green-400 font-semibold text-sm tracking-[0.2em] uppercase mb-2 block">
               Why Choose Us
             </span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Experience the HomeGarden Difference
             </h2>
-            <p className="text-gray-300 text-base md:text-lg">
+            <p className="text-gray-600 dark:text-gray-300 text-base md:text-lg">
               Premium quality plants with expert care support
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: '🌱', title: 'Premium Quality', description: 'Every plant is hand-picked by expert horticulturists', color: 'from-green-500/20 to-emerald-500/20' },
-              { icon: '🚚', title: 'Free Delivery', description: 'Free delivery on orders over ₹499', color: 'from-blue-500/20 to-cyan-500/20' },
-              { icon: '💚', title: 'Lifetime Support', description: 'Free expert advice for the life of your plants', color: 'from-purple-500/20 to-pink-500/20' },
-              { icon: '🌿', title: 'Eco-Friendly', description: 'Sustainable practices and biodegradable pots', color: 'from-green-500/20 to-emerald-500/20' },
-              { icon: '💰', title: 'Best Prices', description: 'Competitive prices with 100% satisfaction guarantee', color: 'from-amber-500/20 to-orange-500/20' },
-              { icon: '🏆', title: 'Guaranteed Health', description: '30-day healthy plant guarantee', color: 'from-red-500/20 to-rose-500/20' }
+              { icon: '🌱', title: 'Premium Quality', description: 'Every plant is hand-picked by expert horticulturists', colorLight: 'from-green-50 to-emerald-50', colorDark: 'from-green-500/20 to-emerald-500/20', textLight: 'text-gray-800', textDark: 'text-white', descLight: 'text-gray-600', descDark: 'text-gray-300' },
+              { icon: '🚚', title: 'Free Delivery', description: 'Free delivery on orders over ₹499', colorLight: 'from-blue-50 to-cyan-50', colorDark: 'from-blue-500/20 to-cyan-500/20', textLight: 'text-gray-800', textDark: 'text-white', descLight: 'text-gray-600', descDark: 'text-gray-300' },
+              { icon: '💚', title: 'Lifetime Support', description: 'Free expert advice for the life of your plants', colorLight: 'from-purple-50 to-pink-50', colorDark: 'from-purple-500/20 to-pink-500/20', textLight: 'text-gray-800', textDark: 'text-white', descLight: 'text-gray-600', descDark: 'text-gray-300' },
+              { icon: '🌿', title: 'Eco-Friendly', description: 'Sustainable practices and biodegradable pots', colorLight: 'from-green-50 to-emerald-50', colorDark: 'from-green-500/20 to-emerald-500/20', textLight: 'text-gray-800', textDark: 'text-white', descLight: 'text-gray-600', descDark: 'text-gray-300' },
+              { icon: '💰', title: 'Best Prices', description: 'Competitive prices with 100% satisfaction guarantee', colorLight: 'from-amber-50 to-orange-50', colorDark: 'from-amber-500/20 to-orange-500/20', textLight: 'text-gray-800', textDark: 'text-white', descLight: 'text-gray-600', descDark: 'text-gray-300' },
+              { icon: '🏆', title: 'Guaranteed Health', description: '30-day healthy plant guarantee', colorLight: 'from-red-50 to-rose-50', colorDark: 'from-red-500/20 to-rose-500/20', textLight: 'text-gray-800', textDark: 'text-white', descLight: 'text-gray-600', descDark: 'text-gray-300' }
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -494,14 +494,14 @@ const Home = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 viewport={{ once: true }}
-                className={`group relative overflow-hidden bg-gradient-to-br ${feature.color} backdrop-blur-sm rounded-2xl p-6 hover:scale-105 transition-all duration-300 border border-white/10`}
+                className={`group relative overflow-hidden bg-gradient-to-br ${feature.colorLight} dark:${feature.colorDark} rounded-2xl p-6 hover:scale-105 transition-all duration-300 border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-xl`}
               >
                 <div className="relative z-10">
                   <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">{feature.description}</p>
+                  <h3 className={`text-xl font-bold ${feature.textLight} dark:${feature.textDark} mb-2`}>{feature.title}</h3>
+                  <p className={`${feature.descLight} dark:${feature.descDark} text-sm leading-relaxed`}>{feature.description}</p>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </motion.div>
@@ -510,7 +510,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Delivery Section - Fixed Dark/Light Mode */}
+      {/* Delivery Section - Light/Dark Mode */}
       <section className="py-16 md:py-20 bg-white dark:bg-gray-800 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <motion.div
@@ -551,7 +551,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section - Fixed Dark/Light Mode */}
+      {/* CTA Section - Always gradient */}
       <section className="py-16 md:py-20 bg-gradient-to-r from-green-600 to-emerald-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full filter blur-3xl"></div>
