@@ -26,19 +26,19 @@ const getPlantMetadata = (plant) => {
 
 // Premium Skeleton Loader
 const Skeleton = () => (
-  <div className="flex flex-col h-full rounded-[28px] overflow-hidden bg-gradient-to-br from-[#07111f] via-[#081425] to-[#040915] border border-white/[0.05] shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+  <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428]/90 to-[#050a19]/98 border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
     <div className="h-[180px] bg-gradient-to-br from-gray-800 to-gray-700 animate-pulse" />
     <div className="flex-1 flex flex-col px-4 py-4 space-y-3">
-      <div className="h-7 bg-gray-700 rounded-lg w-3/4 animate-pulse" />
+      <div className="h-6 bg-gray-700 rounded-lg w-3/4 animate-pulse" />
       <div className="h-4 bg-gray-700 rounded w-2/3 animate-pulse" />
       <div className="h-4 bg-gray-700 rounded w-1/2 animate-pulse" />
       <div className="h-10 bg-gray-700 rounded-xl w-full animate-pulse mt-2" />
       <div className="h-4 bg-gray-700 rounded w-3/4 animate-pulse" />
       <div className="grid grid-cols-2 gap-3 mt-2">
-        <div className="h-[48px] bg-gray-700 rounded-[18px] animate-pulse" />
-        <div className="h-[48px] bg-gray-700 rounded-[18px] animate-pulse" />
+        <div className="h-[46px] bg-gray-700 rounded-xl animate-pulse" />
+        <div className="h-[46px] bg-gray-700 rounded-xl animate-pulse" />
       </div>
-      <div className="h-[48px] bg-gray-700 rounded-[18px] w-full animate-pulse" />
+      <div className="h-[48px] bg-gray-700 rounded-xl w-full animate-pulse" />
     </div>
   </div>
 );
@@ -139,18 +139,18 @@ const PlantCardComponent = ({ plant }) => {
     ? plant.variety.name
     : plant.variety || '';
 
+  // Single line category
   const categoryDisplay = plant.category?.name || '';
   const fullCategory = categoryDisplay + (varietyName ? ` • ${varietyName}` : '');
 
   return (
     <Link
       to={plantDetailUrl}
-      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-[28px]"
+      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-2xl"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Card Container */}
-      <div className="flex flex-col h-full rounded-[28px] overflow-hidden bg-gradient-to-br from-[#07111f] via-[#081425] to-[#040915] border border-white/[0.05] shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+      <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428] to-[#050a19] border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
 
         {/* Image Section */}
         <div className="relative flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
@@ -169,7 +169,7 @@ const PlantCardComponent = ({ plant }) => {
             />
           </div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-[#040915] via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050a19] via-transparent to-transparent opacity-50" />
 
           {/* Premium Badge - Top Left */}
           {isPremium && inStock && (
@@ -183,14 +183,14 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           )}
 
-          {/* Wishlist Button */}
+          {/* Wishlist Button - Fixed size 36x36 */}
           <button
             onClick={handleWishlist}
-            className="absolute top-3 right-3 z-20 w-[42px] h-[42px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 border border-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            className="absolute top-3 right-3 z-20 w-[36px] h-[36px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 border border-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <svg
-              className={`w-5 h-5 transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-current' : 'text-white'}`}
+              className={`w-4 h-4 transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-current' : 'text-white'}`}
               fill={isWishlisted ? 'currentColor' : 'none'}
               stroke="currentColor"
               strokeWidth={1.5}
@@ -200,14 +200,14 @@ const PlantCardComponent = ({ plant }) => {
             </svg>
           </button>
 
-          {/* Image Count */}
+          {/* Image Count Badge - Compact */}
           {plant.images && plant.images.length > 1 && (
             <div className="absolute bottom-3 right-3 z-10">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-white/15">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-black/40 backdrop-blur-sm rounded-full border border-white/15">
+                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-white text-[10px] font-medium">{plant.images.length}</span>
+                <span className="text-white text-[9px] font-medium">{plant.images.length}</span>
               </div>
             </div>
           )}
@@ -221,18 +221,18 @@ const PlantCardComponent = ({ plant }) => {
           )}
         </div>
 
-        {/* Content Section - Updated padding */}
+        {/* Content Section - Premium spacing: px-4 py-4 */}
         <div className="flex-1 flex flex-col px-4 py-4">
 
-          {/* Title - min-h-[54px] for equal height */}
-          <div className="min-h-[54px] mb-2">
-            <h3 className="text-[22px] font-extrabold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
+          {/* Title - Fixed min-height 60px, line-clamp-2 */}
+          <div className="min-h-[60px] mb-2">
+            <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
               {plant.name || 'Premium Plant'}
             </h3>
           </div>
 
-          {/* Category - min-h-[18px] for equal height */}
-          <div className="min-h-[18px] mb-2.5">
+          {/* Category - Single line */}
+          <div className="min-h-[20px] mb-2.5">
             {fullCategory && (
               <p className="text-white/40 text-[11px] tracking-wide truncate">
                 🌿 {fullCategory}
@@ -240,98 +240,92 @@ const PlantCardComponent = ({ plant }) => {
             )}
           </div>
 
-          {/* Quality Row - min-h-[18px] for equal height */}
-          <div className="min-h-[18px] mb-3">
+          {/* Quality Row */}
+          <div className="min-h-[20px] mb-3">
             <p className="text-emerald-400/80 text-[11px] font-medium tracking-wide">
               {plantMetadata}
             </p>
           </div>
 
-          {/* Price - Updated text size */}
+          {/* Price */}
           <div className="mb-3">
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-[34px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
+              <span className="text-[38px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
                 ₹{formattedPrice}
               </span>
               <span className="text-white/30 text-[11px] font-medium">Starting at</span>
             </div>
           </div>
 
-          {/* Delivery Row - Replaced with new design */}
-          <div className="flex items-center justify-between mb-4 text-[11px]">
-            <span className="text-white/50">
-              🚚 Free Delivery
+          {/* Delivery + Stock - Clean one line */}
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[11px] text-white/50">🚚 Free Delivery</span>
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              In Stock
             </span>
-            {inStock && (
-              <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                In Stock
-              </span>
-            )}
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-2.5 mt-auto">
-            {/* Row 1: View + Cart - Grid with gap */}
+            {/* Row 1: View + Cart - side by side */}
             <div className="grid grid-cols-2 gap-3">
-              {/* View Button - Fixed icon cutting */}
+              {/* View Button - Premium ghost style */}
               <button
                 onClick={(e) => e.preventDefault()}
-                className="h-[48px] rounded-[18px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-center gap-2 px-4 overflow-hidden transition-all duration-300 hover:bg-white/[0.08] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="h-[46px] rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 aria-label="View product details"
               >
-                <svg className="w-5 h-5 flex-shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 flex-shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <span className="text-sm font-semibold text-white/80">View</span>
+                <span className="text-[14px] font-semibold text-white">View</span>
               </button>
 
-              {/* Cart Button - Fixed icon cutting */}
+              {/* Cart Button - Solid green */}
               <button
                 onClick={handleAddToCart}
                 disabled={!inStock}
-                className={`h-[48px] rounded-[18px] bg-gradient-to-r from-emerald-600 to-green-500 flex items-center justify-center gap-2 px-4 overflow-hidden transition-all duration-300 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock ? 'cursor-pointer hover:shadow-lg hover:shadow-emerald-500/25' : 'opacity-50 cursor-not-allowed'
+                className={`h-[46px] rounded-xl transition-all flex items-center justify-center gap-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock
+                    ? 'bg-[#16a34a] hover:bg-[#15803d] cursor-pointer'
+                    : 'bg-gray-700 cursor-not-allowed'
                   }`}
                 aria-label="Add to cart"
               >
-                <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <span className="text-sm font-semibold text-white">{isAdded ? 'Added!' : 'Cart'}</span>
+                <span className="text-[14px] font-semibold text-white">{isAdded ? 'Added!' : 'Cart'}</span>
               </button>
             </div>
 
-            {/* Row 2: Buy Now - Premium CTA */}
+            {/* Row 2: Buy Now - Clean gradient, not flashy */}
             <button
               onClick={handleBuyNow}
               disabled={!inStock}
-              className={`w-full h-[48px] rounded-[18px] bg-gradient-to-r from-[#ff7a18] via-[#ff5f45] to-[#ff4d4d] flex items-center justify-center gap-2 shadow-[0_10px_25px_rgba(255,95,69,0.35)] transition-all duration-300 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock ? 'cursor-pointer hover:shadow-[0_15px_30px_rgba(255,95,69,0.45)]' : 'opacity-50 cursor-not-allowed'
+              className={`w-full h-[48px] rounded-xl transition-all flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock
+                  ? 'bg-gradient-to-r from-[#ff7a18] to-[#ff4d4d] shadow-[0_6px_20px_rgba(255,90,50,0.25)] hover:scale-[1.01] cursor-pointer'
+                  : 'bg-gray-700 cursor-not-allowed'
                 }`}
               aria-label="Buy now"
             >
               <span className="text-base">⚡</span>
-              <span className="font-bold text-[15px] text-white">Buy Now</span>
-              <span className="text-white">→</span>
+              <span className="text-white font-bold text-[15px] tracking-wide whitespace-nowrap">Buy Now</span>
+              <span className="text-white/90 text-base transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
             </button>
           </div>
         </div>
 
-        {/* Subtle Emerald Glow on Hover */}
-        <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-[28px] ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-[28px]" />
-          <div className="absolute -inset-px bg-gradient-to-r from-emerald-500/8 to-green-500/8 rounded-[28px] blur-xl" />
+        {/* Subtle Emerald Glow - reduced intensity */}
+        <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-2xl ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl" />
         </div>
       </div>
     </Link>
   );
 };
 
-// Memoized component for performance
 const PlantCard = memo(PlantCardComponent);
-
-// Export skeleton for loading states
 export const PlantCardSkeleton = Skeleton;
-
-// Default export for backward compatibility
 export default PlantCard;
