@@ -139,6 +139,7 @@ const PlantCardComponent = ({ plant }) => {
     ? plant.variety.name
     : plant.variety || '';
 
+  // Category display with better truncation (allow up to 2 lines)
   const categoryDisplay = `${plant.category?.name || ''}${varietyName ? ` • ${varietyName}` : ''}`;
 
   return (
@@ -232,10 +233,10 @@ const PlantCardComponent = ({ plant }) => {
             </h3>
           </div>
 
-          {/* Category - Single line */}
-          <div className="min-h-[20px] mb-2.5">
+          {/* Category - Allow up to 2 lines with truncation */}
+          <div className="min-h-[40px] mb-2.5">
             {categoryDisplay && (
-              <p className="text-white/40 text-[11px] tracking-wide truncate">
+              <p className="text-white/40 text-[11px] tracking-wide line-clamp-2">
                 🌿 {categoryDisplay}
               </p>
             )}
@@ -258,19 +259,19 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           </div>
 
-          {/* Delivery + Stock - Single line with bullet */}
+          {/* Delivery + Stock - Single line with bullet, no wrap */}
           <div className="min-h-[20px] mb-4">
-            <div className="flex items-center gap-1.5 flex-wrap whitespace-nowrap">
-              <span className="text-sm">🚚</span>
-              <span className="text-white/35 text-[10px] font-medium">Delivery Available</span>
-              <span className="text-white/20 text-[10px]">•</span>
+            <div className="flex items-center gap-1.5 flex-nowrap whitespace-nowrap">
+              <span className="text-sm shrink-0">🚚</span>
+              <span className="text-white/35 text-[10px] font-medium shrink-0">Delivery Available</span>
+              <span className="text-white/20 text-[10px] shrink-0">•</span>
               {inStock ? (
                 <>
-                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-emerald-400 text-[10px] font-semibold">In Stock</span>
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shrink-0" />
+                  <span className="text-emerald-400 text-[10px] font-semibold shrink-0">In Stock</span>
                 </>
               ) : (
-                <span className="text-red-400/60 text-[10px] font-medium">Out of Stock</span>
+                <span className="text-red-400/60 text-[10px] font-medium shrink-0">Out of Stock</span>
               )}
             </div>
           </div>
