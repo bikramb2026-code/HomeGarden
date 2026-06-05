@@ -26,19 +26,19 @@ const getPlantMetadata = (plant) => {
 
 // Premium Skeleton Loader
 const Skeleton = () => (
-  <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428]/90 to-[#050a19]/98 border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+  <div className="flex flex-col h-full rounded-[28px] overflow-hidden bg-gradient-to-br from-[#07111f] via-[#081425] to-[#040915] border border-white/[0.05] shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-xl">
     <div className="h-[180px] bg-gradient-to-br from-gray-800 to-gray-700 animate-pulse" />
-    <div className="flex-1 flex flex-col p-5 space-y-3">
-      <div className="h-6 bg-gray-700 rounded-lg w-3/4 animate-pulse" />
+    <div className="flex-1 flex flex-col px-4 py-4 space-y-3">
+      <div className="h-7 bg-gray-700 rounded-lg w-3/4 animate-pulse" />
       <div className="h-4 bg-gray-700 rounded w-2/3 animate-pulse" />
       <div className="h-4 bg-gray-700 rounded w-1/2 animate-pulse" />
       <div className="h-10 bg-gray-700 rounded-xl w-full animate-pulse mt-2" />
       <div className="h-4 bg-gray-700 rounded w-3/4 animate-pulse" />
       <div className="grid grid-cols-2 gap-3 mt-2">
-        <div className="h-[50px] bg-gray-700 rounded-2xl animate-pulse" />
-        <div className="h-[50px] bg-gray-700 rounded-2xl animate-pulse" />
+        <div className="h-[48px] bg-gray-700 rounded-[18px] animate-pulse" />
+        <div className="h-[48px] bg-gray-700 rounded-[18px] animate-pulse" />
       </div>
-      <div className="h-[54px] bg-gray-700 rounded-2xl w-full animate-pulse" />
+      <div className="h-[48px] bg-gray-700 rounded-[18px] w-full animate-pulse" />
     </div>
   </div>
 );
@@ -139,18 +139,18 @@ const PlantCardComponent = ({ plant }) => {
     ? plant.variety.name
     : plant.variety || '';
 
-  // Combine category and variety into a single line
   const categoryDisplay = plant.category?.name || '';
   const fullCategory = categoryDisplay + (varietyName ? ` • ${varietyName}` : '');
 
   return (
     <Link
       to={plantDetailUrl}
-      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-2xl"
+      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-[28px]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428] to-[#050a19] border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+      {/* Card Container */}
+      <div className="flex flex-col h-full rounded-[28px] overflow-hidden bg-gradient-to-br from-[#07111f] via-[#081425] to-[#040915] border border-white/[0.05] shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
 
         {/* Image Section */}
         <div className="relative flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
@@ -169,7 +169,7 @@ const PlantCardComponent = ({ plant }) => {
             />
           </div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050a19] via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#040915] via-transparent to-transparent opacity-50" />
 
           {/* Premium Badge - Top Left */}
           {isPremium && inStock && (
@@ -221,18 +221,18 @@ const PlantCardComponent = ({ plant }) => {
           )}
         </div>
 
-        {/* Content Section */}
-        <div className="flex-1 flex flex-col p-5">
+        {/* Content Section - Updated padding */}
+        <div className="flex-1 flex flex-col px-4 py-4">
 
-          {/* Title - fixed height 56px, 2 lines max */}
-          <div className="min-h-[56px] mb-2">
-            <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
+          {/* Title - min-h-[54px] for equal height */}
+          <div className="min-h-[54px] mb-2">
+            <h3 className="text-[22px] font-extrabold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
               {plant.name || 'Premium Plant'}
             </h3>
           </div>
 
-          {/* Category - single line only (no wrapping to multiple lines) */}
-          <div className="min-h-[20px] mb-2.5">
+          {/* Category - min-h-[18px] for equal height */}
+          <div className="min-h-[18px] mb-2.5">
             {fullCategory && (
               <p className="text-white/40 text-[11px] tracking-wide truncate">
                 🌿 {fullCategory}
@@ -240,112 +240,98 @@ const PlantCardComponent = ({ plant }) => {
             )}
           </div>
 
-          {/* Quality Row */}
-          <div className="min-h-[20px] mb-3">
+          {/* Quality Row - min-h-[18px] for equal height */}
+          <div className="min-h-[18px] mb-3">
             <p className="text-emerald-400/80 text-[11px] font-medium tracking-wide">
               {plantMetadata}
             </p>
           </div>
 
-          {/* Price */}
+          {/* Price - Updated text size */}
           <div className="mb-3">
             <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-[38px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
+              <span className="text-[34px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
                 ₹{formattedPrice}
               </span>
               <span className="text-white/30 text-[11px] font-medium">Starting at</span>
             </div>
           </div>
 
-          {/* Delivery + Stock - always show both on one line */}
-          <div className="min-h-[20px] mb-4">
-            <div className="flex items-center gap-1.5 flex-nowrap whitespace-nowrap">
-              <span className="text-sm shrink-0">🚚</span>
-              <span className="text-white/35 text-[10px] font-medium shrink-0">Delivery Available</span>
-              <span className="text-white/20 text-[10px] shrink-0">•</span>
-              {inStock ? (
-                <>
-                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shrink-0" />
-                  <span className="text-emerald-400 text-[10px] font-semibold shrink-0">In Stock</span>
-                </>
-              ) : (
-                <span className="text-red-400/60 text-[10px] font-medium shrink-0">Out of Stock</span>
-              )}
-            </div>
+          {/* Delivery Row - Replaced with new design */}
+          <div className="flex items-center justify-between mb-4 text-[11px]">
+            <span className="text-white/50">
+              🚚 Free Delivery
+            </span>
+            {inStock && (
+              <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                In Stock
+              </span>
+            )}
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-2.5 mt-auto">
-            {/* Row 1: View + Cart - side by side */}
-            <div className="grid grid-cols-2 gap-[14px]">
+            {/* Row 1: View + Cart - Grid with gap */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* View Button - Fixed icon cutting */}
               <button
                 onClick={(e) => e.preventDefault()}
-                className="group/btn h-[50px] bg-white/5 backdrop-blur-sm rounded-2xl border border-white/8 hover:bg-white/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="h-[48px] rounded-[18px] bg-white/[0.04] border border-white/[0.08] flex items-center justify-center gap-2 px-4 overflow-hidden transition-all duration-300 hover:bg-white/[0.08] active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 aria-label="View product details"
               >
-                <svg className="w-[18px] h-[18px] text-white/80 group-hover/btn:text-white transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 flex-shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <span className="text-white/80 text-sm font-semibold group-hover/btn:text-white transition-colors">View</span>
+                <span className="text-sm font-semibold text-white/80">View</span>
               </button>
 
+              {/* Cart Button - Fixed icon cutting */}
               <button
                 onClick={handleAddToCart}
                 disabled={!inStock}
-                className={`group/btn h-[50px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 px-3 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock
-                    ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:shadow-lg hover:shadow-emerald-500/25 cursor-pointer'
-                    : 'bg-gray-700 cursor-not-allowed'
+                className={`h-[48px] rounded-[18px] bg-gradient-to-r from-emerald-600 to-green-500 flex items-center justify-center gap-2 px-4 overflow-hidden transition-all duration-300 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock ? 'cursor-pointer hover:shadow-lg hover:shadow-emerald-500/25' : 'opacity-50 cursor-not-allowed'
                   }`}
                 aria-label="Add to cart"
               >
-                <svg className="w-[18px] h-[18px] text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <span className="text-white text-sm font-semibold">{isAdded ? 'Added!' : 'Cart'}</span>
+                <span className="text-sm font-semibold text-white">{isAdded ? 'Added!' : 'Cart'}</span>
               </button>
             </div>
 
-            {/* Row 2: Buy Now */}
+            {/* Row 2: Buy Now - Premium CTA */}
             <button
               onClick={handleBuyNow}
               disabled={!inStock}
-              className={`group/btn relative w-full h-[54px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 overflow-hidden active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock
-                  ? 'cursor-pointer'
-                  : 'bg-gray-700 cursor-not-allowed'
+              className={`w-full h-[48px] rounded-[18px] bg-gradient-to-r from-[#ff7a18] via-[#ff5f45] to-[#ff4d4d] flex items-center justify-center gap-2 shadow-[0_10px_25px_rgba(255,95,69,0.35)] transition-all duration-300 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock ? 'cursor-pointer hover:shadow-[0_15px_30px_rgba(255,95,69,0.45)]' : 'opacity-50 cursor-not-allowed'
                 }`}
-              style={{
-                background: inStock ? 'linear-gradient(105deg, #FF7A18 0%, #FF4D4D 45%, #FF7A18 100%)' : 'none',
-                backgroundSize: inStock ? '200% auto' : 'auto',
-              }}
+              aria-label="Buy now"
             >
-              {inStock && (
-                <>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-                  <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_12px_rgba(255,77,77,0.3)]" />
-                </>
-              )}
-              <div className="relative shrink-0">
-                <span className="absolute inset-0 blur-sm opacity-60 group-hover/btn:opacity-100 transition-opacity duration-300 text-lg">⚡</span>
-                <span className="relative text-base">⚡</span>
-              </div>
-              <span className="text-white font-bold text-[17px] tracking-wide whitespace-nowrap">Buy Now</span>
-              <span className="text-white/90 text-base transition-transform duration-300 group-hover/btn:translate-x-1 shrink-0">→</span>
+              <span className="text-base">⚡</span>
+              <span className="font-bold text-[15px] text-white">Buy Now</span>
+              <span className="text-white">→</span>
             </button>
           </div>
         </div>
 
         {/* Subtle Emerald Glow on Hover */}
-        <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-2xl ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl" />
-          <div className="absolute -inset-px bg-gradient-to-r from-emerald-500/8 to-green-500/8 rounded-2xl blur-xl" />
+        <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-[28px] ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-[28px]" />
+          <div className="absolute -inset-px bg-gradient-to-r from-emerald-500/8 to-green-500/8 rounded-[28px] blur-xl" />
         </div>
       </div>
     </Link>
   );
 };
 
+// Memoized component for performance
 const PlantCard = memo(PlantCardComponent);
+
+// Export skeleton for loading states
 export const PlantCardSkeleton = Skeleton;
+
+// Default export for backward compatibility
 export default PlantCard;
