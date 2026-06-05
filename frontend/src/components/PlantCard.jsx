@@ -11,34 +11,34 @@ const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=600&auto=format'
 ];
 
-// Premium plant metadata based on plant data
+// Premium plant metadata
 const getPlantMetadata = (plant) => {
-  if (plant.isLowMaintenance) return '🌱 Easy Care';
-  if (plant.isPremiumQuality) return '🪴 Premium Quality';
+  if (plant.isPremiumQuality) return '🌱 Premium Quality';
   if (plant.isGrafted) return '🪴 Grafted Plant';
   if (plant.sunRequirement === 'full') return '☀️ Full Sun';
   if (plant.sunRequirement === 'partial') return '🌤️ Partial Sun';
   if (plant.sunRequirement === 'indirect') return '💡 Indirect Light';
   if (plant.waterRequirement === 'low') return '💧 Low Water';
   if (plant.waterRequirement === 'high') return '💧 High Water';
-  return '🌱 Premium Quality';
+  if (plant.isLowMaintenance) return '🌱 Easy Care';
+  return '🌿 Premium Quality';
 };
 
-// Premium Skeleton Loader - Same height as actual card
+// Premium Skeleton Loader
 const Skeleton = () => (
-  <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-gray-900/90 to-gray-800/90 border border-white/8 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+  <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428]/90 to-[#050a19]/98 border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
     <div className="h-[180px] bg-gradient-to-br from-gray-800 to-gray-700 animate-pulse" />
-    <div className="flex-1 flex flex-col p-4 space-y-3">
+    <div className="flex-1 flex flex-col p-5 space-y-3">
       <div className="h-6 bg-gray-700 rounded-lg w-3/4 animate-pulse" />
       <div className="h-4 bg-gray-700 rounded w-2/3 animate-pulse" />
       <div className="h-4 bg-gray-700 rounded w-1/2 animate-pulse" />
       <div className="h-10 bg-gray-700 rounded-xl w-full animate-pulse mt-2" />
       <div className="h-4 bg-gray-700 rounded w-3/4 animate-pulse" />
-      <div className="flex gap-3 mt-2">
-        <div className="h-12 bg-gray-700 rounded-2xl flex-1 animate-pulse" />
-        <div className="h-12 bg-gray-700 rounded-2xl flex-1 animate-pulse" />
+      <div className="grid grid-cols-2 gap-3 mt-2">
+        <div className="h-[50px] bg-gray-700 rounded-2xl animate-pulse" />
+        <div className="h-[50px] bg-gray-700 rounded-2xl animate-pulse" />
       </div>
-      <div className="h-14 bg-gray-700 rounded-2xl w-full animate-pulse" />
+      <div className="h-[56px] bg-gray-700 rounded-2xl w-full animate-pulse" />
     </div>
   </div>
 );
@@ -93,7 +93,7 @@ const PlantCardComponent = ({ plant }) => {
     e.stopPropagation();
     addToCart(plant);
     setIsAdded(true);
-    toast.success(`${plant.name || 'Plant'} added`, {
+    toast.success(`${plant.name || 'Plant'} added to cart`, {
       duration: 1500,
       position: 'bottom-center',
       style: {
@@ -103,6 +103,7 @@ const PlantCardComponent = ({ plant }) => {
         borderRadius: '100px',
         fontSize: '13px',
         fontWeight: '600',
+        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
       },
       icon: '✓',
     });
@@ -120,11 +121,11 @@ const PlantCardComponent = ({ plant }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsWishlisted(!isWishlisted);
-    toast.success(isWishlisted ? 'Removed' : 'Saved', {
+    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist', {
       duration: 1000,
       position: 'bottom-center',
       style: {
-        background: '#1f2937',
+        background: '#1a1f2e',
         color: '#fff',
         padding: '8px 16px',
         borderRadius: '100px',
@@ -138,29 +139,28 @@ const PlantCardComponent = ({ plant }) => {
     ? plant.variety.name
     : plant.variety || '';
 
-  // Fixed category display format
   const categoryDisplay = `${plant.category?.name || ''}${varietyName ? ` • ${varietyName}` : ''}`;
 
   return (
     <Link
       to={plantDetailUrl}
-      className="block group h-full"
+      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-2xl"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Fixed Height Container - Ensures all cards are exactly the same height */}
-      <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#1a1f2e] to-[#0f141f] border border-white/8 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
+      {/* Card Container */}
+      <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428] to-[#050a19] border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
 
-        {/* IMAGE SECTION - Fixed 180px height */}
-        <div className="relative flex-shrink-0 overflow-hidden bg-gray-800">
+        {/* Image Section - Fixed 180px */}
+        <div className="relative flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           <div className="h-[180px] w-full">
             {!isImageLoaded && (
               <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-700 animate-pulse" />
             )}
             <img
               src={imgSrc}
-              alt={plant.name || 'Plant'}
-              className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'
+              alt={plant.name || 'Premium Plant'}
+              className={`w-full h-full object-cover transition-all duration-700 ease-out ${isHovered ? 'scale-110' : 'scale-100'
                 } ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
               loading="lazy"
               onError={handleImageError}
@@ -169,124 +169,125 @@ const PlantCardComponent = ({ plant }) => {
           </div>
 
           {/* Premium Image Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f141f] via-transparent to-transparent opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050a19] via-transparent to-transparent opacity-50" />
 
-          {/* Premium Badge - Top Left */}
+          {/* Premium Badge - Top Left (Only when premium) */}
           {isPremium && inStock && (
             <div className="absolute top-3 left-3 z-10">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full blur-sm opacity-60" />
-                <div className="relative flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full">
-                  <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 1L12 6H18L13 9L15 14L10 11L5 14L7 9L2 6H8L10 1Z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-white text-[9px] font-bold tracking-wider">PREMIUM</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full blur-md opacity-60" />
+                <div className="relative flex items-center justify-center px-3 h-[30px] bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full shadow-lg">
+                  <span className="text-white text-[11px] font-bold tracking-wider">PREMIUM</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Wishlist Heart - Top Right */}
+          {/* Wishlist Button - Top Right */}
           <button
             onClick={handleWishlist}
-            className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 border border-white/20"
-            aria-label="Save to wishlist"
+            className="absolute top-3 right-3 z-20 w-[42px] h-[42px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 border border-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
           >
             <svg
-              className={`w-3.5 h-3.5 transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-current' : 'text-white'}`}
+              className={`w-5 h-5 transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-current' : 'text-white'}`}
               fill={isWishlisted ? 'currentColor' : 'none'}
               stroke="currentColor"
+              strokeWidth={1.5}
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </button>
 
           {/* Image Count - Bottom Right */}
           {plant.images && plant.images.length > 1 && (
             <div className="absolute bottom-3 right-3 z-10">
-              <div className="flex items-center gap-1 px-2 py-0.5 bg-black/40 backdrop-blur-sm rounded-full border border-white/20">
-                <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-white/15">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-white text-[9px] font-medium">{plant.images.length}</span>
+                <span className="text-white text-[10px] font-medium">{plant.images.length}</span>
               </div>
             </div>
           )}
 
           {/* Out of Stock Overlay */}
           {!inStock && (
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10">
-              <div className="px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/30">
-                <span className="text-white text-[10px] font-bold tracking-wide">SOLD OUT</span>
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
+              <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                <span className="text-white text-[11px] font-bold tracking-wide">SOLD OUT</span>
               </div>
             </div>
           )}
         </div>
 
-        {/* CONTENT SECTION - Flex column with fixed spacing */}
-        <div className="flex-1 flex flex-col p-4">
+        {/* Content Section - Fixed spacing */}
+        <div className="flex-1 flex flex-col p-5">
 
-          {/* TITLE - Fixed height for 2 lines */}
+          {/* Title - Fixed height for 2 lines */}
           <div className="min-h-[44px] mb-2">
             <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
               {plant.name || 'Premium Plant'}
             </h3>
           </div>
 
-          {/* CATEGORY - Single line, fixed height */}
+          {/* Category - Single line */}
           <div className="min-h-[20px] mb-2.5">
             {categoryDisplay && (
-              <p className="text-white/45 text-[11px] tracking-wide truncate">
+              <p className="text-white/40 text-[11px] tracking-wide truncate">
                 🌿 {categoryDisplay}
               </p>
             )}
           </div>
 
-          {/* QUALITY INFO - Fixed height */}
+          {/* Quality Row */}
           <div className="min-h-[20px] mb-3">
             <p className="text-emerald-400/80 text-[11px] font-medium tracking-wide">
               {plantMetadata}
             </p>
           </div>
 
-          {/* PRICE - Fixed height */}
-          <div className="mb-2.5">
-            <div className="flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-[34px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
+          {/* Price Section */}
+          <div className="mb-3">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-[38px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
                 ₹{formattedPrice}
               </span>
-              <span className="text-white/30 text-[10px] font-medium">Starting at</span>
+              <span className="text-white/30 text-[11px] font-medium">Starting at</span>
             </div>
           </div>
 
-          {/* META INFO - Single line, fixed height */}
-          <div className="min-h-[24px] mb-4">
+          {/* Delivery + Stock - Single line */}
+          <div className="min-h-[20px] mb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <span className="text-[11px]">🚚</span>
-                <span className="text-white/35 text-[9px] font-medium">Delivery Available</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">🚚</span>
+                <span className="text-white/35 text-[10px] font-medium">Delivery Available</span>
               </div>
               {inStock && (
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-emerald-400 text-[9px] font-semibold">In Stock</span>
+                  <span className="text-emerald-400 text-[10px] font-semibold">In Stock</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* ACTION AREA - Fixed at bottom with consistent button sizes */}
-          <div className="flex flex-col gap-2 mt-auto pt-1">
-            {/* Top Row: View + Cart */}
-            <div className="flex gap-3">
+          {/* Action Area - Fixed at bottom */}
+          <div className="flex flex-col gap-2.5 mt-auto">
+            {/* Row 1: View + Cart */}
+            <div className="grid grid-cols-2 gap-3">
               {/* View Button - Glassmorphism */}
               <button
                 onClick={(e) => e.preventDefault()}
-                className="flex-1 group/btn h-12 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/8 hover:bg-white/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
-                aria-label="View details"
+                className="group/btn h-[50px] bg-white/5 backdrop-blur-sm rounded-2xl border border-white/8 hover:bg-white/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                aria-label="View product details"
               >
-                <span className="text-base">👁</span>
+                <svg className="w-5 h-5 text-white/80 group-hover/btn:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
                 <span className="text-white/80 text-sm font-semibold group-hover/btn:text-white transition-colors">View</span>
               </button>
 
@@ -294,22 +295,24 @@ const PlantCardComponent = ({ plant }) => {
               <button
                 onClick={handleAddToCart}
                 disabled={!inStock}
-                className={`flex-1 group/btn h-12 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 ${inStock
-                    ? 'bg-gradient-to-r from-emerald-600 to-green-600 cursor-pointer'
+                className={`group/btn h-[50px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock
+                    ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:shadow-lg hover:shadow-emerald-500/25 cursor-pointer'
                     : 'bg-gray-700 cursor-not-allowed'
                   }`}
                 aria-label="Add to cart"
               >
-                <span className="text-base">🛒</span>
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
                 <span className="text-white text-sm font-semibold">{isAdded ? 'Added!' : 'Cart'}</span>
               </button>
             </div>
 
-            {/* Bottom Row: Buy Now - Premium CTA */}
+            {/* Row 2: Buy Now - Premium CTA */}
             <button
               onClick={handleBuyNow}
               disabled={!inStock}
-              className={`group/btn relative w-full h-14 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden active:scale-[0.98] ${inStock
+              className={`group/btn relative w-full h-[56px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 overflow-hidden active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock
                   ? 'cursor-pointer'
                   : 'bg-gray-700 cursor-not-allowed'
                 }`}
@@ -322,20 +325,20 @@ const PlantCardComponent = ({ plant }) => {
               {inStock && (
                 <>
                   {/* Animated Shine Sweep */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                   {/* Inner Glow */}
                   <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
                   {/* Premium Shadow */}
-                  <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_12px_rgba(255,77,77,0.3)]" />
+                  <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_12px_rgba(255,77,77,0.3)]" />
                 </>
               )}
               {/* Lightning Icon with Glow */}
               <div className="relative">
-                <span className="absolute inset-0 blur-sm opacity-50 group-hover/btn:opacity-100 transition-opacity duration-300 text-lg">⚡</span>
+                <span className="absolute inset-0 blur-sm opacity-60 group-hover/btn:opacity-100 transition-opacity duration-300 text-lg">⚡</span>
                 <span className="relative text-base">⚡</span>
               </div>
               <span className="text-white font-bold text-base tracking-wide">Buy Now</span>
-              {/* Arrow with Movement */}
+              {/* Arrow with Slide Animation */}
               <span className="text-white/90 text-base transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
             </button>
           </div>
@@ -343,8 +346,8 @@ const PlantCardComponent = ({ plant }) => {
 
         {/* Premium Emerald Glow on Hover */}
         <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-2xl ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/6 to-green-500/6 rounded-2xl" />
-          <div className="absolute -inset-px bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-2xl blur-xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl" />
+          <div className="absolute -inset-px bg-gradient-to-r from-emerald-500/8 to-green-500/8 rounded-2xl blur-xl" />
         </div>
       </div>
     </Link>

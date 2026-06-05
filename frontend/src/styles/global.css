@@ -40,3 +40,27 @@
 .animate-slow-zoom {
   animation: slowZoom 20s ease-in-out infinite alternate;
 }
+
+/* Plant Grid Container - Ensures equal height cards */
+.plant-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+/* Tablet: 3 cards per row */
+@media (min-width: 768px) {
+  .plant-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Desktop: 4 cards per row */
+@media (min-width: 1024px) {
+  .plant-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+}
