@@ -3,42 +3,21 @@ import { useState, useEffect, memo } from 'react';
 import { useCart } from '../contexts/CartContext';
 import toast from 'react-hot-toast';
 
-// Premium fallback images
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600&auto=format',
-  'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format',
-  'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600&auto=format',
-  'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=600&auto=format'
-];
+// Fallback image
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400&auto=format';
 
-// Premium plant metadata
-const getPlantMetadata = (plant) => {
-  if (plant.isPremiumQuality) return '🌱 Premium Quality';
-  if (plant.isGrafted) return '🪴 Grafted Plant';
-  if (plant.sunRequirement === 'full') return '☀️ Full Sun';
-  if (plant.sunRequirement === 'partial') return '🌤️ Partial Sun';
-  if (plant.sunRequirement === 'indirect') return '💡 Indirect Light';
-  if (plant.waterRequirement === 'low') return '💧 Low Water';
-  if (plant.waterRequirement === 'high') return '💧 High Water';
-  if (plant.isLowMaintenance) return '🌱 Easy Care';
-  return '🌿 Premium Quality';
-};
+// Helper: random rating (replace with real data later)
+const getRating = () => (4 + Math.random()).toFixed(1);
+const getReviewCount = () => Math.floor(Math.random() * 5000) + 50;
 
-// Premium Skeleton Loader
 const Skeleton = () => (
-  <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428]/90 to-[#050a19]/98 border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-    <div className="h-[180px] bg-gradient-to-br from-gray-800 to-gray-700 animate-pulse" />
-    <div className="flex-1 flex flex-col px-4 py-4 space-y-3">
-      <div className="h-6 bg-gray-700 rounded-lg w-3/4 animate-pulse" />
-      <div className="h-4 bg-gray-700 rounded w-2/3 animate-pulse" />
-      <div className="h-4 bg-gray-700 rounded w-1/2 animate-pulse" />
-      <div className="h-10 bg-gray-700 rounded-xl w-full animate-pulse mt-2" />
-      <div className="h-4 bg-gray-700 rounded w-3/4 animate-pulse" />
-      <div className="grid grid-cols-2 gap-3 mt-2">
-        <div className="h-[46px] bg-gray-700 rounded-xl animate-pulse" />
-        <div className="h-[46px] bg-gray-700 rounded-xl animate-pulse" />
-      </div>
-      <div className="h-[48px] bg-gray-700 rounded-xl w-full animate-pulse" />
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
+    <div className="h-48 bg-gray-200 rounded-t-lg" />
+    <div className="p-3 space-y-2">
+      <div className="h-4 bg-gray-200 rounded w-3/4" />
+      <div className="h-4 bg-gray-200 rounded w-1/2" />
+      <div className="h-6 bg-gray-200 rounded w-1/3" />
+      <div className="h-8 bg-gray-200 rounded w-full" />
     </div>
   </div>
 );
@@ -48,64 +27,29 @@ const PlantCardComponent = ({ plant }) => {
   const { addToCart } = useCart();
   const [imgSrc, setImgSrc] = useState('');
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const inStock = plant.inStock !== false;
   const isPremium = plant.price >= 500;
-  const plantMetadata = getPlantMetadata(plant);
-
-  const sectionSlug = plant.section?.slug || '';
-  const categorySlug = plant.category?.slug || '';
-  const plantSlug = plant.slug || '';
-
-  const plantDetailUrl = sectionSlug && categorySlug && plantSlug
-    ? `/categories/${sectionSlug}/${categorySlug}/${plantSlug}`
-    : `/plants/${plantSlug}`;
-
-  const formattedPrice = new Intl.NumberFormat('en-IN').format(plant.price || 0);
+  const rating = getRating();
+  const reviewCount = getReviewCount();
 
   useEffect(() => {
-    getImageUrl();
+    const imageUrl = plant.images?.[0]?.url || plant.images?.[0] || plant.image || FALLBACK_IMAGE;
+    setImgSrc(imageUrl);
   }, [plant]);
 
-  const getImageUrl = () => {
-    try {
-      const imageUrl = plant.images?.[0]?.url || plant.images?.[0] || plant.image;
-      if (imageUrl?.startsWith('http')) {
-        setImgSrc(imageUrl);
-      } else {
-        setImgSrc(FALLBACK_IMAGES[0]);
-      }
-    } catch (error) {
-      setImgSrc(FALLBACK_IMAGES[0]);
-    }
-  };
-
-  const handleImageError = () => {
-    const randomIndex = Math.floor(Math.random() * FALLBACK_IMAGES.length);
-    setImgSrc(FALLBACK_IMAGES[randomIndex]);
-  };
+  const handleImageError = () => setImgSrc(FALLBACK_IMAGE);
 
   const handleAddToCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(plant);
     setIsAdded(true);
-    toast.success(`${plant.name || 'Plant'} added to cart`, {
+    toast.success(`${plant.name || 'Item'} added to cart`, {
       duration: 1500,
       position: 'bottom-center',
-      style: {
-        background: 'linear-gradient(135deg, #10b981, #059669)',
-        color: '#fff',
-        padding: '12px 20px',
-        borderRadius: '100px',
-        fontSize: '13px',
-        fontWeight: '600',
-        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-      },
-      icon: '✓',
+      style: { background: '#16a34a', color: '#fff' },
     });
     setTimeout(() => setIsAdded(false), 1000);
   };
@@ -117,215 +61,101 @@ const PlantCardComponent = ({ plant }) => {
     navigate('/checkout');
   };
 
-  const handleWishlist = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist', {
-      duration: 1000,
-      position: 'bottom-center',
-      style: {
-        background: '#1a1f2e',
-        color: '#fff',
-        padding: '8px 16px',
-        borderRadius: '100px',
-        fontSize: '12px',
-      },
-      icon: isWishlisted ? '💔' : '❤️',
-    });
-  };
-
-  const varietyName = plant.variety && typeof plant.variety === 'object'
-    ? plant.variety.name
-    : plant.variety || '';
-
-  // Single line category
-  const categoryDisplay = plant.category?.name || '';
-  const fullCategory = categoryDisplay + (varietyName ? ` • ${varietyName}` : '');
+  const formattedPrice = new Intl.NumberFormat('en-IN').format(plant.price || 0);
+  const varietyName = plant.variety?.name || plant.variety || '';
+  const categoryName = plant.category?.name || '';
 
   return (
     <Link
-      to={plantDetailUrl}
-      className="block group h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-2xl"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      to={`/plant/${plant.slug}`}
+      className="block group bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow h-full flex flex-col"
     >
-      <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428] to-[#050a19] border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
+      {/* Image */}
+      <div className="relative bg-gray-100 rounded-t-lg overflow-hidden">
+        <div className="aspect-square w-full">
+          {!isImageLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse" />}
+          <img
+            src={imgSrc}
+            alt={plant.name}
+            className={`w-full h-full object-cover transition-opacity ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            loading="lazy"
+            onError={handleImageError}
+            onLoad={() => setIsImageLoaded(true)}
+          />
+        </div>
+        {isPremium && (
+          <span className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            PREMIUM
+          </span>
+        )}
+      </div>
 
-        {/* Image Section */}
-        <div className="relative flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
-          <div className="h-[180px] w-full">
-            {!isImageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-700 animate-pulse" />
-            )}
-            <img
-              src={imgSrc}
-              alt={plant.name || 'Premium Plant'}
-              className={`w-full h-full object-cover transition-all duration-700 ease-out ${isHovered ? 'scale-110' : 'scale-100'
-                } ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-              loading="lazy"
-              onError={handleImageError}
-              onLoad={() => setIsImageLoaded(true)}
-            />
+      {/* Content */}
+      <div className="p-3 flex-1 flex flex-col">
+        {/* Category / variety line */}
+        <div className="text-[11px] text-gray-500 mb-1">
+          {categoryName && `${categoryName} `}
+          {varietyName && `• ${varietyName}`}
+        </div>
+
+        {/* Title - 2 lines max */}
+        <h3 className="text-sm font-medium text-gray-800 line-clamp-2 mb-1 group-hover:text-green-700">
+          {plant.name}
+        </h3>
+
+        {/* Rating (Amazon style) */}
+        <div className="flex items-center gap-1 my-1">
+          <div className="flex text-[11px] text-amber-400">
+            {'★'.repeat(Math.floor(rating))}{'☆'.repeat(5 - Math.floor(rating))}
           </div>
+          <span className="text-[10px] text-gray-500">{rating}</span>
+          <span className="text-[10px] text-gray-400">({reviewCount.toLocaleString()})</span>
+        </div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050a19] via-transparent to-transparent opacity-50" />
+        {/* Price */}
+        <div className="mt-1">
+          <span className="text-xl font-bold text-gray-900">₹{formattedPrice}</span>
+          <span className="text-[10px] text-gray-500 ml-1">Starting at</span>
+        </div>
 
-          {/* Premium Badge - Top Left */}
-          {isPremium && inStock && (
-            <div className="absolute top-3 left-3 z-10">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full blur-md opacity-60" />
-                <div className="relative flex items-center justify-center px-3 h-[30px] bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full shadow-lg">
-                  <span className="text-white text-[11px] font-bold tracking-wider">PREMIUM</span>
-                </div>
-              </div>
-            </div>
+        {/* Stock & delivery */}
+        <div className="flex items-center justify-between mt-2 text-[10px]">
+          {inStock ? (
+            <span className="text-green-700 font-medium">In Stock</span>
+          ) : (
+            <span className="text-red-600">Out of Stock</span>
           )}
+          <span className="text-gray-500">🚚 Free Delivery</span>
+        </div>
 
-          {/* Wishlist Button - Fixed size 36x36 */}
+        {/* Buttons (Amazon: Add to Cart link + Buy Now button) */}
+        <div className="mt-3 flex flex-col gap-2">
           <button
-            onClick={handleWishlist}
-            className="absolute top-3 right-3 z-20 w-[36px] h-[36px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 border border-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-            aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            onClick={handleAddToCart}
+            disabled={!inStock}
+            className={`w-full py-2 rounded-md text-sm font-medium transition ${inStock
+                ? 'bg-amber-500 hover:bg-amber-600 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
           >
-            <svg
-              className={`w-4 h-4 transition-all duration-300 ${isWishlisted ? 'text-red-500 fill-current' : 'text-white'}`}
-              fill={isWishlisted ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth={1.5}
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
+            {isAdded ? '✓ Added' : 'Add to Cart'}
           </button>
-
-          {/* Image Count Badge - Compact */}
-          {plant.images && plant.images.length > 1 && (
-            <div className="absolute bottom-3 right-3 z-10">
-              <div className="flex items-center gap-1 px-2 py-0.5 bg-black/40 backdrop-blur-sm rounded-full border border-white/15">
-                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-white text-[9px] font-medium">{plant.images.length}</span>
-              </div>
-            </div>
-          )}
-
-          {!inStock && (
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
-              <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
-                <span className="text-white text-[11px] font-bold tracking-wide">SOLD OUT</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Content Section - Premium spacing: px-4 py-4 */}
-        <div className="flex-1 flex flex-col px-4 py-4">
-
-          {/* Title - Fixed min-height 60px, line-clamp-2 */}
-          <div className="min-h-[60px] mb-2">
-            <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
-              {plant.name || 'Premium Plant'}
-            </h3>
-          </div>
-
-          {/* Category - Single line */}
-          <div className="min-h-[20px] mb-2.5">
-            {fullCategory && (
-              <p className="text-white/40 text-[11px] tracking-wide truncate">
-                🌿 {fullCategory}
-              </p>
-            )}
-          </div>
-
-          {/* Quality Row */}
-          <div className="min-h-[20px] mb-3">
-            <p className="text-emerald-400/80 text-[11px] font-medium tracking-wide">
-              {plantMetadata}
-            </p>
-          </div>
-
-          {/* Price */}
-          <div className="mb-3">
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-[38px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
-                ₹{formattedPrice}
-              </span>
-              <span className="text-white/30 text-[11px] font-medium">Starting at</span>
-            </div>
-          </div>
-
-          {/* Delivery + Stock - Clean one line */}
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-[11px] text-white/50">🚚 Free Delivery</span>
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              In Stock
-            </span>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col gap-2.5 mt-auto">
-            {/* Row 1: View + Cart - side by side */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* View Button - Premium ghost style */}
-              <button
-                onClick={(e) => e.preventDefault()}
-                className="h-[46px] rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] transition-all flex items-center justify-center gap-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                aria-label="View product details"
-              >
-                <svg className="w-4 h-4 flex-shrink-0 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span className="text-[14px] font-semibold text-white">View</span>
-              </button>
-
-              {/* Cart Button - Solid green */}
-              <button
-                onClick={handleAddToCart}
-                disabled={!inStock}
-                className={`h-[46px] rounded-xl transition-all flex items-center justify-center gap-2 px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock
-                    ? 'bg-[#16a34a] hover:bg-[#15803d] cursor-pointer'
-                    : 'bg-gray-700 cursor-not-allowed'
-                  }`}
-                aria-label="Add to cart"
-              >
-                <svg className="w-4 h-4 flex-shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span className="text-[14px] font-semibold text-white">{isAdded ? 'Added!' : 'Cart'}</span>
-              </button>
-            </div>
-
-            {/* Row 2: Buy Now - Clean gradient, not flashy */}
-            <button
-              onClick={handleBuyNow}
-              disabled={!inStock}
-              className={`w-full h-[48px] rounded-xl transition-all flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock
-                  ? 'bg-gradient-to-r from-[#ff7a18] to-[#ff4d4d] shadow-[0_6px_20px_rgba(255,90,50,0.25)] hover:scale-[1.01] cursor-pointer'
-                  : 'bg-gray-700 cursor-not-allowed'
-                }`}
-              aria-label="Buy now"
-            >
-              <span className="text-base">⚡</span>
-              <span className="text-white font-bold text-[15px] tracking-wide whitespace-nowrap">Buy Now</span>
-              <span className="text-white/90 text-base transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Subtle Emerald Glow - reduced intensity */}
-        <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-2xl ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl" />
+          <button
+            onClick={handleBuyNow}
+            disabled={!inStock}
+            className={`w-full py-2 rounded-md text-sm font-medium transition ${inStock
+                ? 'bg-orange-600 hover:bg-orange-700 text-white'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
+          >
+            Buy Now
+          </button>
         </div>
       </div>
     </Link>
   );
 };
 
-const PlantCard = memo(PlantCardComponent);
+export const PlantCard = memo(PlantCardComponent);
 export const PlantCardSkeleton = Skeleton;
 export default PlantCard;
