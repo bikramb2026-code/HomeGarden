@@ -139,8 +139,9 @@ const PlantCardComponent = ({ plant }) => {
     ? plant.variety.name
     : plant.variety || '';
 
-  // Category display with better truncation (allow up to 2 lines)
-  const categoryDisplay = `${plant.category?.name || ''}${varietyName ? ` • ${varietyName}` : ''}`;
+  // Combine category and variety into a single line
+  const categoryDisplay = plant.category?.name || '';
+  const fullCategory = categoryDisplay + (varietyName ? ` • ${varietyName}` : '');
 
   return (
     <Link
@@ -149,10 +150,9 @@ const PlantCardComponent = ({ plant }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Card Container */}
       <div className="flex flex-col h-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#0a1428] to-[#050a19] border border-white/6 shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-400 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(0,0,0,0.45)]">
 
-        {/* Image Section - Fixed 180px */}
+        {/* Image Section */}
         <div className="relative flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           <div className="h-[180px] w-full">
             {!isImageLoaded && (
@@ -169,7 +169,6 @@ const PlantCardComponent = ({ plant }) => {
             />
           </div>
 
-          {/* Premium Image Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#050a19] via-transparent to-transparent opacity-50" />
 
           {/* Premium Badge - Top Left */}
@@ -184,7 +183,7 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           )}
 
-          {/* Wishlist Button - Top Right */}
+          {/* Wishlist Button */}
           <button
             onClick={handleWishlist}
             className="absolute top-3 right-3 z-20 w-[42px] h-[42px] rounded-full bg-black/30 backdrop-blur-md flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 border border-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
@@ -201,7 +200,7 @@ const PlantCardComponent = ({ plant }) => {
             </svg>
           </button>
 
-          {/* Image Count - Bottom Right */}
+          {/* Image Count */}
           {plant.images && plant.images.length > 1 && (
             <div className="absolute bottom-3 right-3 z-10">
               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-white/15">
@@ -213,7 +212,6 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           )}
 
-          {/* Out of Stock Overlay */}
           {!inStock && (
             <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-10">
               <div className="px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
@@ -223,21 +221,21 @@ const PlantCardComponent = ({ plant }) => {
           )}
         </div>
 
-        {/* Content Section - Fixed spacing */}
+        {/* Content Section */}
         <div className="flex-1 flex flex-col p-5">
 
-          {/* Title - Fixed min-height 56px, line-clamp-2 */}
+          {/* Title - fixed height 56px, 2 lines max */}
           <div className="min-h-[56px] mb-2">
             <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
               {plant.name || 'Premium Plant'}
             </h3>
           </div>
 
-          {/* Category - Allow up to 2 lines with truncation */}
-          <div className="min-h-[40px] mb-2.5">
-            {categoryDisplay && (
-              <p className="text-white/40 text-[11px] tracking-wide line-clamp-2">
-                🌿 {categoryDisplay}
+          {/* Category - single line only (no wrapping to multiple lines) */}
+          <div className="min-h-[20px] mb-2.5">
+            {fullCategory && (
+              <p className="text-white/40 text-[11px] tracking-wide truncate">
+                🌿 {fullCategory}
               </p>
             )}
           </div>
@@ -249,7 +247,7 @@ const PlantCardComponent = ({ plant }) => {
             </p>
           </div>
 
-          {/* Price Section */}
+          {/* Price */}
           <div className="mb-3">
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-[38px] font-black bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent leading-none">
@@ -259,7 +257,7 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           </div>
 
-          {/* Delivery + Stock - Single line with bullet, no wrap */}
+          {/* Delivery + Stock - always show both on one line */}
           <div className="min-h-[20px] mb-4">
             <div className="flex items-center gap-1.5 flex-nowrap whitespace-nowrap">
               <span className="text-sm shrink-0">🚚</span>
@@ -276,11 +274,10 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           </div>
 
-          {/* Action Area - Fixed at bottom */}
+          {/* Action Buttons */}
           <div className="flex flex-col gap-2.5 mt-auto">
-            {/* Row 1: View + Cart - Grid with 14px gap */}
+            {/* Row 1: View + Cart - side by side */}
             <div className="grid grid-cols-2 gap-[14px]">
-              {/* View Button - Glassmorphism, fixed clipping */}
               <button
                 onClick={(e) => e.preventDefault()}
                 className="group/btn h-[50px] bg-white/5 backdrop-blur-sm rounded-2xl border border-white/8 hover:bg-white/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
@@ -293,7 +290,6 @@ const PlantCardComponent = ({ plant }) => {
                 <span className="text-white/80 text-sm font-semibold group-hover/btn:text-white transition-colors">View</span>
               </button>
 
-              {/* Cart Button - Icon + Text, centered */}
               <button
                 onClick={handleAddToCart}
                 disabled={!inStock}
@@ -310,7 +306,7 @@ const PlantCardComponent = ({ plant }) => {
               </button>
             </div>
 
-            {/* Row 2: Buy Now - Single line fix, height 54px, nowrap */}
+            {/* Row 2: Buy Now */}
             <button
               onClick={handleBuyNow}
               disabled={!inStock}
@@ -318,7 +314,6 @@ const PlantCardComponent = ({ plant }) => {
                   ? 'cursor-pointer'
                   : 'bg-gray-700 cursor-not-allowed'
                 }`}
-              aria-label="Buy now"
               style={{
                 background: inStock ? 'linear-gradient(105deg, #FF7A18 0%, #FF4D4D 45%, #FF7A18 100%)' : 'none',
                 backgroundSize: inStock ? '200% auto' : 'auto',
@@ -351,11 +346,6 @@ const PlantCardComponent = ({ plant }) => {
   );
 };
 
-// Memoized component for performance
 const PlantCard = memo(PlantCardComponent);
-
-// Export skeleton for loading states
 export const PlantCardSkeleton = Skeleton;
-
-// Default export for backward compatibility
 export default PlantCard;
