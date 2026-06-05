@@ -105,8 +105,8 @@ const PlantCardComponent = ({ plant }) => {
     navigate('/checkout');
   };
 
-  const varietyName = plant.variety && typeof plant.variety === 'object' 
-    ? plant.variety.name 
+  const varietyName = plant.variety && typeof plant.variety === 'object'
+    ? plant.variety.name
     : plant.variety || '';
 
   return (
@@ -117,7 +117,7 @@ const PlantCardComponent = ({ plant }) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-sm rounded-3xl overflow-hidden border border-emerald-500/15 shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)] hover:-translate-y-2 h-full flex flex-col">
-        
+
         {/* Image Section - 55% of card height */}
         <div className="relative flex-shrink-0 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
           <div className="aspect-[4/3] w-full">
@@ -127,9 +127,8 @@ const PlantCardComponent = ({ plant }) => {
             <img
               src={imgSrc}
               alt={plant.name || 'Premium Plant'}
-              className={`w-full h-full object-cover transition-all duration-700 ${
-                isHovered ? 'scale-110' : 'scale-100'
-              } ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-cover transition-all duration-700 ${isHovered ? 'scale-110' : 'scale-100'
+                } ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
               loading="lazy"
               onError={handleImageError}
               onLoad={() => setIsImageLoaded(true)}
@@ -196,7 +195,7 @@ const PlantCardComponent = ({ plant }) => {
 
         {/* Content Section */}
         <div className="p-6 flex-1 flex flex-col">
-          
+
           {/* Product Name - 24px, Bold */}
           <h3 className="text-2xl font-bold text-white mb-3 leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
             {plant.name || 'Premium Plant'}
@@ -276,11 +275,10 @@ const PlantCardComponent = ({ plant }) => {
               <button
                 onClick={handleAddToCart}
                 disabled={!inStock}
-                className={`flex-1 group/btn relative h-12 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden ${
-                  inStock
+                className={`flex-1 group/btn relative h-12 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden ${inStock
                     ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:scale-105 active:scale-95 cursor-pointer'
                     : 'bg-gray-700 cursor-not-allowed'
-                }`}
+                  }`}
                 aria-label="Add to cart"
               >
                 {inStock && (
@@ -297,11 +295,10 @@ const PlantCardComponent = ({ plant }) => {
             <button
               onClick={handleBuyNow}
               disabled={!inStock}
-              className={`group/btn relative w-full h-[60px] rounded-xl transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden ${
-                inStock
+              className={`group/btn relative w-full h-[60px] rounded-xl transition-all duration-300 flex items-center justify-center gap-3 overflow-hidden ${inStock
                   ? 'bg-gradient-to-r from-[#FF7A18] to-[#FF4D4D] hover:scale-[1.02] active:scale-95 cursor-pointer'
                   : 'bg-gray-700 cursor-not-allowed'
-              }`}
+                }`}
               aria-label="Buy now"
             >
               {inStock && (
@@ -332,7 +329,10 @@ const PlantCardComponent = ({ plant }) => {
 };
 
 // Memoized component for performance
-export const PlantCard = memo(PlantCardComponent);
+const PlantCard = memo(PlantCardComponent);
 
 // Export skeleton for loading states
-export { Skeleton as PlantCardSkeleton };
+export const PlantCardSkeleton = Skeleton;
+
+// Default export for backward compatibility with existing imports
+export default PlantCard;
