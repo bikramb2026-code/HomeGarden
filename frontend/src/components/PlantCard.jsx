@@ -18,7 +18,7 @@ const PlantCard = ({ plant }) => {
   const isBestSeller = plant.isBestSeller || false;
   const isPremium = plant.price >= 500;
 
-  // Premium fallback images
+  // Premium fallback images (luxury botanical photography)
   const fallbackImages = [
     'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600&auto=format',
     'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format',
@@ -97,7 +97,6 @@ const PlantCard = ({ plant }) => {
     navigate('/checkout');
   };
 
-  // Get variety name as string
   const varietyName = plant.variety && typeof plant.variety === 'object' ? plant.variety.name : plant.variety || '';
 
   return (
@@ -106,8 +105,7 @@ const PlantCard = ({ plant }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-
-      {/* Image Container - Taller aspect ratio for better plant visuals */}
+      {/* Image Container - Premium Aspect Ratio */}
       <Link to={plantDetailUrl} className="block relative aspect-[3/2] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0">
         <div className="w-full h-full overflow-hidden">
           {imgSrc ? (
@@ -125,10 +123,10 @@ const PlantCard = ({ plant }) => {
           )}
         </div>
 
-        {/* Premium Gradient Overlay */}
+        {/* Premium Gradient Overlay on Hover */}
         <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
 
-        {/* Badge Container - Top Left */}
+        {/* Top Left Badges */}
         <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
           {isPremium && inStock && (
             <div className="px-2 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[10px] font-bold rounded-lg shadow-lg backdrop-blur-sm border border-amber-400/50 animate-pulse">
@@ -147,7 +145,7 @@ const PlantCard = ({ plant }) => {
           )}
         </div>
 
-        {/* Badge Container - Top Right */}
+        {/* Top Right Badges */}
         <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
           {plant.images && plant.images.length > 1 && (
             <div className="px-2 py-0.5 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold rounded-lg shadow-xl flex items-center gap-1 border border-white/30">
@@ -172,15 +170,15 @@ const PlantCard = ({ plant }) => {
         </div>
       </Link>
 
-      {/* Content Section - Optimized spacing for mobile */}
+      {/* Content Section */}
       <div className="p-3.5 sm:p-4 md:p-5 flex-1 flex flex-col bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/80">
-        
-        {/* Plant Name - Clean typography */}
+
+        {/* Plant Name */}
         <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight line-clamp-2 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200">
           {plant.name || 'Unnamed Plant'}
         </h3>
 
-        {/* Category Tags - Premium pill design */}
+        {/* Category Tags */}
         <div className="flex flex-wrap gap-1.5 mb-3">
           {plant.section && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-400 text-xs rounded-full font-medium border border-green-200 dark:border-green-800 shadow-sm">
@@ -196,13 +194,13 @@ const PlantCard = ({ plant }) => {
           )}
           {varietyName && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-400 text-xs rounded-full font-medium border border-purple-200 dark:border-purple-800 shadow-sm">
-              <span className="text-purple-600 dark:text-purple-400 text-[10px]"></span>
+              <span className="text-purple-600 dark:text-purple-400 text-[10px]">✨</span>
               {varietyName}
             </span>
           )}
         </div>
 
-        {/* Stock Indicator - Separate line for clarity */}
+        {/* Stock Indicator */}
         {inStock && (
           <div className="flex items-center gap-1.5 mb-3">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
@@ -212,12 +210,12 @@ const PlantCard = ({ plant }) => {
           </div>
         )}
 
-        {/* Description - Clean and readable */}
+        {/* Description */}
         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
           {plant.description || 'Premium quality plant for your home garden'}
         </p>
 
-        {/* Price Section with Delivery Info */}
+        {/* Price Section */}
         <div className="mb-3">
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-xl sm:text-2xl md:text-3xl font-black bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
@@ -227,8 +225,8 @@ const PlantCard = ({ plant }) => {
               Starting Price
             </span>
           </div>
-          
-          {/* Delivery Information - Premium badge */}
+
+          {/* Delivery Badge */}
           <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
             <span className="text-[11px] sm:text-xs">🚚</span>
             <span className="text-[10px] sm:text-xs font-medium text-green-700 dark:text-green-400">
@@ -237,7 +235,7 @@ const PlantCard = ({ plant }) => {
           </div>
         </div>
 
-        {/* Action Buttons - Reduced height, better spacing */}
+        {/* Action Buttons */}
         <div className="flex flex-col gap-2 mt-auto pt-2">
           {/* Row 1: View Details + Add to Cart */}
           <div className="flex gap-2">
@@ -260,9 +258,9 @@ const PlantCard = ({ plant }) => {
               onClick={handleAddToCart}
               disabled={!inStock}
               className={`flex-1 group/btn relative text-xs font-semibold py-2 sm:py-2.5 px-2 rounded-xl transition-all duration-300 flex items-center justify-center gap-1 shadow-md hover:shadow-xl transform active:scale-95 overflow-hidden ${inStock
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-              }`}
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
+                  : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                }`}
             >
               {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
               <svg className={`relative z-10 w-3.5 h-3.5 transition-transform duration-300 ${isAdded ? 'scale-125' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,14 +270,14 @@ const PlantCard = ({ plant }) => {
             </button>
           </div>
 
-          {/* Row 2: Buy Now Button - Full Width, Primary CTA */}
+          {/* Row 2: Buy Now Button */}
           <button
             onClick={handleBuyNow}
             disabled={!inStock}
             className={`group/btn relative text-sm font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform active:scale-95 w-full overflow-hidden ${inStock
-              ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
-              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
+                ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              }`}
           >
             {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
             <svg className="relative z-10 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
