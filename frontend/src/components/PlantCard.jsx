@@ -38,7 +38,7 @@ const Skeleton = () => (
         <div className="h-[50px] bg-gray-700 rounded-2xl animate-pulse" />
         <div className="h-[50px] bg-gray-700 rounded-2xl animate-pulse" />
       </div>
-      <div className="h-[56px] bg-gray-700 rounded-2xl w-full animate-pulse" />
+      <div className="h-[54px] bg-gray-700 rounded-2xl w-full animate-pulse" />
     </div>
   </div>
 );
@@ -171,7 +171,7 @@ const PlantCardComponent = ({ plant }) => {
           {/* Premium Image Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#050a19] via-transparent to-transparent opacity-50" />
 
-          {/* Premium Badge - Top Left (Only when premium) */}
+          {/* Premium Badge - Top Left */}
           {isPremium && inStock && (
             <div className="absolute top-3 left-3 z-10">
               <div className="relative">
@@ -225,8 +225,8 @@ const PlantCardComponent = ({ plant }) => {
         {/* Content Section - Fixed spacing */}
         <div className="flex-1 flex flex-col p-5">
 
-          {/* Title - Fixed height for 2 lines */}
-          <div className="min-h-[44px] mb-2">
+          {/* Title - Fixed min-height 56px, line-clamp-2 */}
+          <div className="min-h-[56px] mb-2">
             <h3 className="text-lg font-bold text-white leading-tight line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
               {plant.name || 'Premium Plant'}
             </h3>
@@ -258,61 +258,62 @@ const PlantCardComponent = ({ plant }) => {
             </div>
           </div>
 
-          {/* Delivery + Stock - Single line */}
+          {/* Delivery + Stock - Single line with bullet */}
           <div className="min-h-[20px] mb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm">🚚</span>
-                <span className="text-white/35 text-[10px] font-medium">Delivery Available</span>
-              </div>
-              {inStock && (
-                <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap whitespace-nowrap">
+              <span className="text-sm">🚚</span>
+              <span className="text-white/35 text-[10px] font-medium">Delivery Available</span>
+              <span className="text-white/20 text-[10px]">•</span>
+              {inStock ? (
+                <>
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                   <span className="text-emerald-400 text-[10px] font-semibold">In Stock</span>
-                </div>
+                </>
+              ) : (
+                <span className="text-red-400/60 text-[10px] font-medium">Out of Stock</span>
               )}
             </div>
           </div>
 
           {/* Action Area - Fixed at bottom */}
           <div className="flex flex-col gap-2.5 mt-auto">
-            {/* Row 1: View + Cart */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* View Button - Glassmorphism */}
+            {/* Row 1: View + Cart - Grid with 14px gap */}
+            <div className="grid grid-cols-2 gap-[14px]">
+              {/* View Button - Glassmorphism, fixed clipping */}
               <button
                 onClick={(e) => e.preventDefault()}
-                className="group/btn h-[50px] bg-white/5 backdrop-blur-sm rounded-2xl border border-white/8 hover:bg-white/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="group/btn h-[50px] bg-white/5 backdrop-blur-sm rounded-2xl border border-white/8 hover:bg-white/10 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 px-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                 aria-label="View product details"
               >
-                <svg className="w-5 h-5 text-white/80 group-hover/btn:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-[18px] h-[18px] text-white/80 group-hover/btn:text-white transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
                 <span className="text-white/80 text-sm font-semibold group-hover/btn:text-white transition-colors">View</span>
               </button>
 
-              {/* Cart Button - Emerald Gradient */}
+              {/* Cart Button - Icon + Text, centered */}
               <button
                 onClick={handleAddToCart}
                 disabled={!inStock}
-                className={`group/btn h-[50px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock
+                className={`group/btn h-[50px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 px-3 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${inStock
                     ? 'bg-gradient-to-r from-emerald-600 to-green-600 hover:shadow-lg hover:shadow-emerald-500/25 cursor-pointer'
                     : 'bg-gray-700 cursor-not-allowed'
                   }`}
                 aria-label="Add to cart"
               >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-[18px] h-[18px] text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 <span className="text-white text-sm font-semibold">{isAdded ? 'Added!' : 'Cart'}</span>
               </button>
             </div>
 
-            {/* Row 2: Buy Now - Premium CTA */}
+            {/* Row 2: Buy Now - Single line fix, height 54px, nowrap */}
             <button
               onClick={handleBuyNow}
               disabled={!inStock}
-              className={`group/btn relative w-full h-[56px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 overflow-hidden active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock
+              className={`group/btn relative w-full h-[54px] rounded-2xl transition-all duration-300 flex items-center justify-center gap-2.5 overflow-hidden active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${inStock
                   ? 'cursor-pointer'
                   : 'bg-gray-700 cursor-not-allowed'
                 }`}
@@ -324,27 +325,22 @@ const PlantCardComponent = ({ plant }) => {
             >
               {inStock && (
                 <>
-                  {/* Animated Shine Sweep */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
-                  {/* Inner Glow */}
                   <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-                  {/* Premium Shadow */}
                   <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_12px_rgba(255,77,77,0.3)]" />
                 </>
               )}
-              {/* Lightning Icon with Glow */}
-              <div className="relative">
+              <div className="relative shrink-0">
                 <span className="absolute inset-0 blur-sm opacity-60 group-hover/btn:opacity-100 transition-opacity duration-300 text-lg">⚡</span>
                 <span className="relative text-base">⚡</span>
               </div>
-              <span className="text-white font-bold text-base tracking-wide">Buy Now</span>
-              {/* Arrow with Slide Animation */}
-              <span className="text-white/90 text-base transition-transform duration-300 group-hover/btn:translate-x-1">→</span>
+              <span className="text-white font-bold text-[17px] tracking-wide whitespace-nowrap">Buy Now</span>
+              <span className="text-white/90 text-base transition-transform duration-300 group-hover/btn:translate-x-1 shrink-0">→</span>
             </button>
           </div>
         </div>
 
-        {/* Premium Emerald Glow on Hover */}
+        {/* Subtle Emerald Glow on Hover */}
         <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none rounded-2xl ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-green-500/5 rounded-2xl" />
           <div className="absolute -inset-px bg-gradient-to-r from-emerald-500/8 to-green-500/8 rounded-2xl blur-xl" />
