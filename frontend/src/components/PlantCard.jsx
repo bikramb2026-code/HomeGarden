@@ -73,20 +73,62 @@ const PlantCard = ({ plant }) => {
     e.stopPropagation();
     addToCart(plant);
     setIsAdded(true);
-    toast.success(`${plant.name || 'Plant'} added to cart!`, {
-      duration: 2500,
+
+    // Premium toast notification - bottom position
+    toast.custom((t) => (
+      <div
+        className={`${t.visible ? 'animate-slide-up' : 'animate-slide-down'
+          } transform transition-all duration-500 ease-out`}
+        style={{
+          background: 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: '20px',
+          padding: '0',
+          margin: '0',
+          boxShadow: '0 25px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
+        }}
+      >
+        <div className="flex items-center gap-3 px-5 py-3.5">
+          {/* Animated Icon Container */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-green-500 rounded-full blur-md opacity-50 animate-ping"></div>
+            <div className="relative bg-gradient-to-br from-green-500 to-emerald-600 rounded-full p-2 shadow-lg">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1">
+            <p className="text-white font-bold text-sm tracking-wide">
+              Added to Cart! 🎉
+            </p>
+            <p className="text-gray-400 text-xs mt-0.5 font-medium">
+              {plant.name || 'Plant'} • ₹{formattedPrice}
+            </p>
+          </div>
+
+          {/* Close Button */}
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="text-gray-400 hover:text-white transition-colors duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Animated Progress Bar */}
+        <div className="h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-progress" style={{ width: '100%' }}></div>
+      </div>
+    ), {
+      duration: 3000,
       position: 'bottom-center',
-      style: {
-        background: 'linear-gradient(135deg, #10b981, #059669)',
-        color: '#fff',
-        padding: '12px 20px',
-        borderRadius: '16px',
-        fontWeight: '600',
-        boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
-        border: '1px solid rgba(255,255,255,0.1)'
-      },
-      icon: '🛒',
     });
+
     setTimeout(() => setIsAdded(false), 1000);
   };
 
@@ -174,7 +216,7 @@ const PlantCard = ({ plant }) => {
 
       {/* Content Section - Optimized spacing for mobile */}
       <div className="p-3.5 sm:p-4 md:p-5 flex-1 flex flex-col bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/80">
-        
+
         {/* Plant Name - Clean typography */}
         <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight line-clamp-2 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200">
           {plant.name || 'Unnamed Plant'}
@@ -227,7 +269,7 @@ const PlantCard = ({ plant }) => {
               Starting Price
             </span>
           </div>
-          
+
           {/* Delivery Information - Premium badge */}
           <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
             <span className="text-[11px] sm:text-xs">🚚</span>
@@ -262,7 +304,7 @@ const PlantCard = ({ plant }) => {
               className={`flex-1 group/btn relative text-xs font-semibold py-2 sm:py-2.5 px-2 rounded-xl transition-all duration-300 flex items-center justify-center gap-1 shadow-md hover:shadow-xl transform active:scale-95 overflow-hidden ${inStock
                 ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
                 : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-              }`}
+                }`}
             >
               {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
               <svg className={`relative z-10 w-3.5 h-3.5 transition-transform duration-300 ${isAdded ? 'scale-125' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +321,7 @@ const PlantCard = ({ plant }) => {
             className={`group/btn relative text-sm font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform active:scale-95 w-full overflow-hidden ${inStock
               ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
               : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-            }`}
+              }`}
           >
             {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
             <svg className="relative z-10 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
