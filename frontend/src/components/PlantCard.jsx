@@ -1,199 +1,304 @@
-import React, { useState } from 'react';
-import { Eye, ShoppingCart, Zap, Heart, Truck, CheckCircle, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useCart } from '../contexts/CartContext';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
-/**
- * Premium Plant Card Component
- * 
- * Improvements over your current design:
- * - Single price display with discount badge (no duplicate prices)
- * - Two primary CTAs: Add to Cart & Buy Now (Quick View = icon on image)
- * - Stock & delivery badges with visual contrast
- * - Hover: image scale, card shadow, button transitions
- * - Wishlist heart toggle (optional)
- * - Rating stars with review count
- * - Accessibility & keyboard navigation
- * - Lazy loading + image fallback
- * - Configurable currency (₹ / ₤ / $)
- * 
- * @param {Object} props
- * @param {string|number} props.id
- * @param {string} props.name
- * @param {string} props.image
- * @param {string[]} props.categories
- * @param {number} props.price          // Current price (starting price)
- * @param {number} [props.originalPrice] // For discount display
- * @param {boolean} props.inStock
- * @param {boolean} props.deliveryAvailable
- * @param {number} [props.rating=0]
- * @param {number} [props.reviewCount=0]
- * @param {Function} [props.onAddToCart]
- * @param {Function} [props.onBuyNow]
- * @param {Function} [props.onQuickView]
- * @param {Function} [props.onWishlistToggle]
- * @param {boolean} [props.isWishlisted=false]
- * @param {string} [props.currency='₹']   // '₹', '₤', '$', etc.
- */
-const PlantCard = ({
-  id,
-  name,
-  image,
-  categories = [],
-  price,
-  originalPrice,
-  inStock = true,
-  deliveryAvailable = true,
-  rating = 0,
-  reviewCount = 0,
-  onAddToCart,
-  onBuyNow,
-  onQuickView,
-  onWishlistToggle,
-  isWishlisted = false,
-  currency = '₹',
-}) => {
+const PlantCard = ({ plant }) => {
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [imageError, setImageError] = useState(false);
-  const [wishlisted, setWishlisted] = useState(isWishlisted);
+  const [imgSrc, setImgSrc] = useState('');
+  const [fallbackIndex, setFallbackIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
-  const discountPercent = originalPrice && originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
+  const inStock = plant.inStock !== false;
+  const isNewArrival = plant.isNewArrival || false;
+  const isBestSeller = plant.isBestSeller || false;
+  const isPremium = plant.price >= 500;
 
-  const handleWishlistClick = (e) => {
-    e.stopPropagation();
-    setWishlisted(!wishlisted);
-    onWishlistToggle?.(id, !wishlisted);
+  // Premium fallback images
+  const fallbackImages = [
+    'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600&auto=format',
+    'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format',
+    'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600&auto=format',
+    'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=600&auto=format'
+  ];
+
+  const sectionSlug = plant.section?.slug || '';
+  const categorySlug = plant.category?.slug || '';
+  const plantSlug = plant.slug || '';
+
+  const plantDetailUrl = sectionSlug && categorySlug && plantSlug
+    ? `/categories/${sectionSlug}/${categorySlug}/${plantSlug}`
+    : `/plants/${plantSlug}`;
+
+  const formattedPrice = new Intl.NumberFormat('en-IN').format(plant.price || 0);
+
+  useEffect(() => {
+    getImageUrl();
+  }, [plant]);
+
+  const getImageUrl = () => {
+    try {
+      if (plant.images && Array.isArray(plant.images) && plant.images.length > 0) {
+        const firstImage = plant.images[0];
+        if (typeof firstImage === 'string' && firstImage.startsWith('http')) {
+          setImgSrc(firstImage);
+        } else if (firstImage?.url?.startsWith('http')) {
+          setImgSrc(firstImage.url);
+        } else {
+          setImgSrc(fallbackImages[0]);
+        }
+      } else if (plant.image?.startsWith('http')) {
+        setImgSrc(plant.image);
+      } else {
+        setImgSrc(fallbackImages[0]);
+      }
+    } catch (error) {
+      setImgSrc(fallbackImages[0]);
+    }
   };
 
-  const handleQuickView = (e) => {
-    e.stopPropagation();
-    onQuickView?.(id);
+  const handleImageError = () => {
+    const nextIndex = (fallbackIndex + 1) % fallbackImages.length;
+    setFallbackIndex(nextIndex);
+    setImgSrc(fallbackImages[nextIndex]);
+    setImageError(true);
   };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(plant);
+    setIsAdded(true);
+    toast.success(`${plant.name || 'Plant'} added to cart!`, {
+      duration: 2500,
+      position: 'bottom-center',
+      style: {
+        background: 'linear-gradient(135deg, #10b981, #059669)',
+        color: '#fff',
+        padding: '12px 20px',
+        borderRadius: '16px',
+        fontWeight: '600',
+        boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)',
+        border: '1px solid rgba(255,255,255,0.1)'
+      },
+      icon: '🛒',
+    });
+    setTimeout(() => setIsAdded(false), 1000);
+  };
+
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(plant);
+    navigate('/checkout');
+  };
+
+  // Get variety name as string
+  const varietyName = plant.variety && typeof plant.variety === 'object' ? plant.variety.name : plant.variety || '';
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
-      {/* Image Section with Quick View Overlay */}
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
-        <img
-          src={imageError ? '/fallback-plant.jpg' : image}
-          alt={name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          onError={() => setImageError(true)}
-        />
+    <div
+      className="group relative bg-gradient-to-br from-white via-white to-gray-50 dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm h-full flex flex-col"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
 
-        {/* Discount Badge */}
-        {discountPercent > 0 && (
-          <span className="absolute left-3 top-3 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white shadow-md">
-            {discountPercent}% OFF
+      {/* Image Container - Taller aspect ratio for better plant visuals */}
+      <Link to={plantDetailUrl} className="block relative aspect-[3/2] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0">
+        <div className="w-full h-full overflow-hidden">
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={plant.name || 'Plant'}
+              className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110 md:group-hover:scale-110"
+              loading="lazy"
+              onError={handleImageError}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-green-400 to-emerald-600">
+              <span className="text-6xl text-white opacity-30 animate-pulse">🌿</span>
+            </div>
+          )}
+        </div>
+
+        {/* Premium Gradient Overlay */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
+
+        {/* Badge Container - Top Left */}
+        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+          {isPremium && inStock && (
+            <div className="px-2 py-0.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[10px] font-bold rounded-lg shadow-lg backdrop-blur-sm border border-amber-400/50 animate-pulse">
+              PREMIUM
+            </div>
+          )}
+          {isBestSeller && (
+            <div className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-bold rounded-lg shadow-lg backdrop-blur-sm border border-red-400/50">
+              🔥 BEST SELLER
+            </div>
+          )}
+          {isNewArrival && (
+            <div className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[10px] font-bold rounded-lg shadow-lg backdrop-blur-sm border border-blue-400/50">
+              ✨ NEW
+            </div>
+          )}
+        </div>
+
+        {/* Badge Container - Top Right */}
+        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1 items-end">
+          {plant.images && plant.images.length > 1 && (
+            <div className="px-2 py-0.5 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold rounded-lg shadow-xl flex items-center gap-1 border border-white/30">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>{plant.images.length}</span>
+            </div>
+          )}
+          {!inStock && (
+            <div className="px-2 py-0.5 bg-gradient-to-r from-red-600 to-rose-600 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg shadow-xl border border-red-400/50">
+              SOLD OUT
+            </div>
+          )}
+        </div>
+
+        {/* Quick View Overlay - Desktop Only */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 bg-black/60 backdrop-blur-sm">
+          <span className="px-5 py-2 bg-white/95 dark:bg-gray-800/95 text-gray-900 dark:text-white text-xs font-semibold rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+            Quick View
           </span>
-        )}
+        </div>
+      </Link>
 
-        {/* Wishlist Button */}
-        <button
-          onClick={handleWishlistClick}
-          className="absolute right-3 top-3 rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition hover:bg-white"
-          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-        >
-          <Heart
-            size={18}
-            className={wishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'}
-          />
-        </button>
-
-        {/* Quick View Overlay (appears on hover) */}
-        <button
-          onClick={handleQuickView}
-          className="absolute inset-x-4 bottom-3 translate-y-full rounded-lg bg-black/70 py-2 text-center text-sm font-medium text-white opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
-        >
-          <Eye size={16} className="mr-1 inline" /> Quick View
-        </button>
-      </div>
-
-      {/* Content Section */}
-      <div className="flex flex-1 flex-col p-4">
-        {/* Category Chips */}
-        {categories.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1">
-            {categories.slice(0, 2).map((cat) => (
-              <span
-                key={cat}
-                className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
-              >
-                {cat}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Product Name */}
-        <h3 className="mb-1 line-clamp-2 text-base font-semibold text-gray-800">
-          {name}
+      {/* Content Section - Optimized spacing for mobile */}
+      <div className="p-3.5 sm:p-4 md:p-5 flex-1 flex flex-col bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-800/80">
+        
+        {/* Plant Name - Clean typography */}
+        <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight line-clamp-2 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200">
+          {plant.name || 'Unnamed Plant'}
         </h3>
 
-        {/* Rating */}
-        {rating > 0 && (
-          <div className="mb-2 flex items-center gap-1">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={14}
-                  className={i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
-                />
-              ))}
-            </div>
-            {reviewCount > 0 && (
-              <span className="text-xs text-gray-500">({reviewCount})</span>
-            )}
+        {/* Category Tags - Premium pill design */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {plant.section && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 text-green-700 dark:text-green-400 text-xs rounded-full font-medium border border-green-200 dark:border-green-800 shadow-sm">
+              <span className="text-green-600 dark:text-green-400 text-[10px]">🌿</span>
+              {plant.section.name}
+            </span>
+          )}
+          {plant.category && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full font-medium border border-blue-200 dark:border-blue-800 shadow-sm">
+              <span className="text-blue-600 dark:text-blue-400 text-[10px]">🍃</span>
+              {plant.category.name}
+            </span>
+          )}
+          {varietyName && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-400 text-xs rounded-full font-medium border border-purple-200 dark:border-purple-800 shadow-sm">
+              <span className="text-purple-600 dark:text-purple-400 text-[10px]"></span>
+              {varietyName}
+            </span>
+          )}
+        </div>
+
+        {/* Stock Indicator - Separate line for clarity */}
+        {inStock && (
+          <div className="flex items-center gap-1.5 mb-3">
+            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-[11px] sm:text-xs font-semibold text-green-600 dark:text-green-400">
+              In Stock
+            </span>
           </div>
         )}
 
-        {/* Price */}
-        <div className="mb-3 flex items-baseline gap-2">
-          <span className="text-xl font-bold text-gray-900">
-            {currency}{price.toLocaleString('en-IN')}
-          </span>
-          {originalPrice && (
-            <span className="text-sm text-gray-400 line-through">
-              {currency}{originalPrice.toLocaleString('en-IN')}
+        {/* Description - Clean and readable */}
+        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 leading-relaxed">
+          {plant.description || 'Premium quality plant for your home garden'}
+        </p>
+
+        {/* Price Section with Delivery Info */}
+        <div className="mb-3">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
+              ₹{formattedPrice}
             </span>
-          )}
-          <span className="text-xs text-gray-500">Starting Price</span>
+            <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium">
+              Starting Price
+            </span>
+          </div>
+          
+          {/* Delivery Information - Premium badge */}
+          <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+            <span className="text-[11px] sm:text-xs">🚚</span>
+            <span className="text-[10px] sm:text-xs font-medium text-green-700 dark:text-green-400">
+              Delivery Available
+            </span>
+          </div>
         </div>
 
-        {/* Stock & Delivery Status */}
-        <div className="mb-4 flex flex-wrap gap-3 text-xs">
-          {inStock ? (
-            <span className="flex items-center gap-1 text-green-700">
-              <CheckCircle size={14} /> In Stock
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 text-red-600">Out of Stock</span>
-          )}
-          {deliveryAvailable && (
-            <span className="flex items-center gap-1 text-blue-600">
-              <Truck size={14} /> Delivery Available
-            </span>
-          )}
-        </div>
+        {/* Action Buttons - Reduced height, better spacing */}
+        <div className="flex flex-col gap-2 mt-auto pt-2">
+          {/* Row 1: View Details + Add to Cart */}
+          <div className="flex gap-2">
+            {/* View Details Button */}
+            <Link
+              to={plantDetailUrl}
+              className="flex-1 group/btn relative bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 hover:from-purple-600 hover:to-purple-500 dark:hover:from-purple-600 dark:hover:to-purple-500 text-gray-700 dark:text-gray-300 hover:text-white text-xs font-semibold py-2 sm:py-2.5 px-2 rounded-xl transition-all duration-300 text-center flex items-center justify-center gap-1 shadow-md hover:shadow-xl transform active:scale-95 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-purple-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+              <svg className="relative z-10 w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <span className="relative z-10 hidden sm:inline text-xs">View</span>
+              <span className="relative z-10 sm:hidden text-xs">View</span>
+            </Link>
 
-        {/* Action Buttons – Only TWO primary CTAs */}
-        <div className="mt-auto flex gap-2">
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              disabled={!inStock}
+              className={`flex-1 group/btn relative text-xs font-semibold py-2 sm:py-2.5 px-2 rounded-xl transition-all duration-300 flex items-center justify-center gap-1 shadow-md hover:shadow-xl transform active:scale-95 overflow-hidden ${inStock
+                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
+              <svg className={`relative z-10 w-3.5 h-3.5 transition-transform duration-300 ${isAdded ? 'scale-125' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span className="relative z-10">{isAdded ? 'Added!' : 'Cart'}</span>
+            </button>
+          </div>
+
+          {/* Row 2: Buy Now Button - Full Width, Primary CTA */}
           <button
-            onClick={() => onAddToCart?.(id)}
+            onClick={handleBuyNow}
             disabled={!inStock}
-            className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-emerald-600 bg-white py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`group/btn relative text-sm font-bold py-2.5 sm:py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform active:scale-95 w-full overflow-hidden ${inStock
+              ? 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white'
+              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            }`}
           >
-            <ShoppingCart size={16} /> Add to Cart
-          </button>
-          <button
-            onClick={() => onBuyNow?.(id)}
-            disabled={!inStock}
-            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-700 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Zap size={16} /> Buy Now
+            {inStock && <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700"></div>}
+            <svg className="relative z-10 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span className="relative z-10">Buy Now</span>
+            {inStock && (
+              <span className="relative z-10 text-xs opacity-80 group-hover/btn:translate-x-1 transition-transform duration-300">
+                →
+              </span>
+            )}
           </button>
         </div>
+      </div>
+
+      {/* Glassmorphism Glow Effect on Hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl"></div>
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-2xl blur-xl"></div>
       </div>
     </div>
   );
