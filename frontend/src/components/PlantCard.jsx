@@ -1,344 +1,202 @@
-import { Link } from 'react-router-dom';
-import { useState, useEffect, memo } from 'react';
-import { useCart } from '../contexts/CartContext';
-import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
-import { Eye, ShoppingBag, Zap, Truck, CheckCircle, Sparkles, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Eye, ShoppingCart, Zap, Heart, Truck, CheckCircle, Star } from 'lucide-react';
 
 /**
- * PREMIUM PLANT CARD - Industry Standard v2.0
+ * Premium Plant Card Component
  * 
- * Fixes from your current code:
- * - SINGLE price display with MRP strike-through for discounts
- * - Optimized 2-CTAs max: "Quick View" + "Add to Cart" OR "Buy Now"
- * - Better variety/species hierarchy display
- * - Floating wishlist button (premium touch)
- * - Skeleton loading state
- * - Improved mobile touch targets
- * - Proper stock badges with color coding
+ * Improvements over your current design:
+ * - Single price display with discount badge (no duplicate prices)
+ * - Two primary CTAs: Add to Cart & Buy Now (Quick View = icon on image)
+ * - Stock & delivery badges with visual contrast
+ * - Hover: image scale, card shadow, button transitions
+ * - Wishlist heart toggle (optional)
+ * - Rating stars with review count
+ * - Accessibility & keyboard navigation
+ * - Lazy loading + image fallback
+ * - Configurable currency (₹ / ₤ / $)
+ * 
+ * @param {Object} props
+ * @param {string|number} props.id
+ * @param {string} props.name
+ * @param {string} props.image
+ * @param {string[]} props.categories
+ * @param {number} props.price          // Current price (starting price)
+ * @param {number} [props.originalPrice] // For discount display
+ * @param {boolean} props.inStock
+ * @param {boolean} props.deliveryAvailable
+ * @param {number} [props.rating=0]
+ * @param {number} [props.reviewCount=0]
+ * @param {Function} [props.onAddToCart]
+ * @param {Function} [props.onBuyNow]
+ * @param {Function} [props.onQuickView]
+ * @param {Function} [props.onWishlistToggle]
+ * @param {boolean} [props.isWishlisted=false]
+ * @param {string} [props.currency='₹']   // '₹', '₤', '$', etc.
  */
-const PlantCard = memo(({ plant, index = 0, priority = false }) => {
-  const navigate = useNavigate();
-  const { addToCart } = useCart();
+const PlantCard = ({
+  id,
+  name,
+  image,
+  categories = [],
+  price,
+  originalPrice,
+  inStock = true,
+  deliveryAvailable = true,
+  rating = 0,
+  reviewCount = 0,
+  onAddToCart,
+  onBuyNow,
+  onQuickView,
+  onWishlistToggle,
+  isWishlisted = false,
+  currency = '₹',
+}) => {
   const [imageError, setImageError] = useState(false);
-  const [imgSrc, setImgSrc] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
-  const [isAdded, setIsAdded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [wishlisted, setWishlisted] = useState(isWishlisted);
 
-  // Derived data with proper defaults
-  const inStock = plant.inStock !== false;
-  const isNewArrival = plant.isNewArrival || false;
-  const isBestSeller = plant.isBestSeller || false;
-
-  // PROPER PRICE HANDLING - Single source of truth
-  const currentPrice = plant.price || plant.salePrice || plant.discountedPrice || 0;
-  const originalPrice = plant.originalPrice || plant.mrp || plant.compareAtPrice || null;
-  const discountPercent = originalPrice && originalPrice > currentPrice
-    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+  const discountPercent = originalPrice && originalPrice > price
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : 0;
 
-  // Variety name extraction (fixes your variety display issue)
-  const varietyName = plant.variety && typeof plant.variety === 'object'
-    ? plant.variety.name
-    : plant.variety || '';
-
-  // Category hierarchy for breadcrumb-style display
-  const categoryHierarchy = [
-    plant.section?.name,
-    plant.category?.name,
-    varietyName
-  ].filter(Boolean);
-
-  // URL construction
-  const sectionSlug = plant.section?.slug || '';
-  const categorySlug = plant.category?.slug || '';
-  const plantSlug = plant.slug || '';
-  const plantDetailUrl = sectionSlug && categorySlug && plantSlug
-    ? `/categories/${sectionSlug}/${categorySlug}/${plantSlug}`
-    : `/plants/${plantSlug}`;
-
-  // Premium fallback images (Unsplash + custom)
-  const fallbackImages = [
-    'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=600&auto=format',
-    'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format',
-    'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600&auto=format',
-    'https://images.unsplash.com/photo-1533038590840-1cde6e668a91?w=600&auto=format'
-  ];
-
-  useEffect(() => {
-    getImageUrl();
-  }, [plant]);
-
-  const getImageUrl = () => {
-    try {
-      if (plant.images && Array.isArray(plant.images) && plant.images.length > 0) {
-        const firstImage = plant.images[0];
-        if (typeof firstImage === 'string' && firstImage.startsWith('http')) {
-          setImgSrc(firstImage);
-        } else if (firstImage?.url?.startsWith('http')) {
-          setImgSrc(firstImage.url);
-        } else {
-          setImgSrc(fallbackImages[index % fallbackImages.length]);
-        }
-      } else if (plant.image?.startsWith('http')) {
-        setImgSrc(plant.image);
-      } else {
-        setImgSrc(fallbackImages[index % fallbackImages.length]);
-      }
-    } catch (error) {
-      setImgSrc(fallbackImages[index % fallbackImages.length]);
-    }
-  };
-
-  const handleImageError = () => {
-    setImgSrc(fallbackImages[(index + 1) % fallbackImages.length]);
-    setImageError(true);
+  const handleWishlistClick = (e) => {
+    e.stopPropagation();
+    setWishlisted(!wishlisted);
+    onWishlistToggle?.(id, !wishlisted);
   };
 
   const handleQuickView = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    // Dispatch custom event for modal or navigate to detail
-    navigate(plantDetailUrl);
+    onQuickView?.(id);
   };
-
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!inStock) return;
-
-    addToCart(plant);
-    setIsAdded(true);
-    toast.success(`${plant.name || 'Plant'} added to cart!`, {
-      duration: 2000,
-      position: 'bottom-center',
-      style: {
-        background: '#1e293b',
-        color: '#fff',
-        padding: '10px 16px',
-        borderRadius: '12px',
-        fontSize: '13px',
-        fontWeight: '500',
-      },
-      icon: '🌿',
-    });
-    setTimeout(() => setIsAdded(false), 1000);
-  };
-
-  const handleWishlist = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist', {
-      duration: 1500,
-      position: 'bottom-center',
-      icon: isWishlisted ? '💔' : '❤️',
-    });
-  };
-
-  const formattedPrice = new Intl.NumberFormat('en-IN').format(currentPrice);
-  const formattedOriginalPrice = originalPrice ? new Intl.NumberFormat('en-IN').format(originalPrice) : null;
 
   return (
-    <div
-      className="group relative bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 dark:border-gray-800 h-full flex flex-col"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-
-      {/* ========== IMAGE SECTION ========== */}
-      <Link to={plantDetailUrl} className="relative block aspect-square overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex-shrink-0">
-
-        {/* Skeleton Loader */}
-        {!imageLoaded && (
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800" />
-        )}
-
-        {/* Main Image */}
+    <div className="group relative flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
+      {/* Image Section with Quick View Overlay */}
+      <div className="relative aspect-square overflow-hidden bg-gray-100">
         <img
-          src={imgSrc}
-          alt={plant.name || 'Plant'}
-          className={`w-full h-full object-cover transition-all duration-700 ${isHovered ? 'scale-110 rotate-1' : 'scale-100'
-            } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-          loading={priority ? 'eager' : 'lazy'}
-          onError={handleImageError}
-          onLoad={() => setImageLoaded(true)}
+          src={imageError ? '/fallback-plant.jpg' : image}
+          alt={name}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={() => setImageError(true)}
         />
 
-        {/* Gradient Overlay on Hover */}
-        <div className={`absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'
-          }`} />
+        {/* Discount Badge */}
+        {discountPercent > 0 && (
+          <span className="absolute left-3 top-3 rounded-full bg-red-600 px-2 py-1 text-xs font-bold text-white shadow-md">
+            {discountPercent}% OFF
+          </span>
+        )}
 
-        {/* ========== BADGES - Top Left ========== */}
-        <div className="absolute top-2 left-2 z-10 flex flex-col gap-1.5">
-          {discountPercent > 0 && (
-            <div className="px-2 py-0.5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-bold rounded-lg shadow-lg animate-pulse">
-              -{discountPercent}% OFF
-            </div>
-          )}
-          {isBestSeller && (
-            <div className="px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1">
-              🔥 BESTSELLER
-            </div>
-          )}
-          {isNewArrival && (
-            <div className="px-2 py-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1">
-              ✨ NEW
-            </div>
-          )}
-        </div>
-
-        {/* ========== BADGES - Top Right ========== */}
-        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5 items-end">
-          {!inStock && (
-            <div className="px-2 py-0.5 bg-black/80 backdrop-blur-sm text-white text-[10px] font-bold rounded-lg border border-red-500/50">
-              SOLD OUT
-            </div>
-          )}
-          {plant.images?.length > 1 && (
-            <div className="px-1.5 py-0.5 bg-black/50 backdrop-blur-md text-white text-[9px] font-bold rounded-lg flex items-center gap-1">
-              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span>{plant.images.length}</span>
-            </div>
-          )}
-        </div>
-
-        {/* ========== WISHLIST BUTTON - Floating Heart ========== */}
+        {/* Wishlist Button */}
         <button
-          onClick={handleWishlist}
-          className="absolute bottom-2 right-2 z-10 p-1.5 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 hover:scale-110 active:scale-95"
-          aria-label="Add to wishlist"
+          onClick={handleWishlistClick}
+          className="absolute right-3 top-3 rounded-full bg-white/80 p-1.5 backdrop-blur-sm transition hover:bg-white"
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart
-            className={`w-4 h-4 transition-colors duration-300 ${isWishlisted
-                ? 'fill-red-500 stroke-red-500'
-                : 'stroke-gray-600 dark:stroke-gray-400 fill-none'
-              }`}
+            size={18}
+            className={wishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'}
           />
         </button>
 
-        {/* Quick View Overlay - On Hover */}
-        <div className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}>
-          <button
-            onClick={handleQuickView}
-            className="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-xs font-semibold rounded-full shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            Quick View
-          </button>
-        </div>
-      </Link>
+        {/* Quick View Overlay (appears on hover) */}
+        <button
+          onClick={handleQuickView}
+          className="absolute inset-x-4 bottom-3 translate-y-full rounded-lg bg-black/70 py-2 text-center text-sm font-medium text-white opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+        >
+          <Eye size={16} className="mr-1 inline" /> Quick View
+        </button>
+      </div>
 
-      {/* ========== CONTENT SECTION ========== */}
-      <div className="p-3 sm:p-4 flex-1 flex flex-col">
-
-        {/* Category Hierarchy - Clean breadcrumb style */}
-        {categoryHierarchy.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1 mb-2 text-[10px] font-medium text-gray-500 dark:text-gray-400">
-            {categoryHierarchy.map((cat, idx) => (
-              <span key={idx} className="flex items-center gap-1">
-                {idx > 0 && <span className="text-gray-300 dark:text-gray-600">•</span>}
-                <span className="hover:text-green-600 dark:hover:text-green-400 transition-colors">
-                  {cat}
-                </span>
+      {/* Content Section */}
+      <div className="flex flex-1 flex-col p-4">
+        {/* Category Chips */}
+        {categories.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1">
+            {categories.slice(0, 2).map((cat) => (
+              <span
+                key={cat}
+                className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+              >
+                {cat}
               </span>
             ))}
           </div>
         )}
 
-        {/* Plant Name */}
-        <Link to={plantDetailUrl}>
-          <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-white mb-1.5 leading-tight line-clamp-2 hover:text-green-600 dark:hover:text-green-400 transition-colors">
-            {plant.name || 'Unnamed Plant'}
-          </h3>
-        </Link>
+        {/* Product Name */}
+        <h3 className="mb-1 line-clamp-2 text-base font-semibold text-gray-800">
+          {name}
+        </h3>
 
-        {/* Short Description - Only 1 line for compactness */}
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-1">
-          {plant.description || plant.shortDescription || 'Premium quality plant for your garden'}
-        </p>
-
-        {/* ========== PRICE SECTION - SINGLE CLEAR PRICE ========== */}
-        <div className="mb-3">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-lg sm:text-xl font-black bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
-              ₹{formattedPrice}
-            </span>
-
-            {originalPrice && (
-              <span className="text-xs text-gray-400 dark:text-gray-500 line-through">
-                ₹{formattedOriginalPrice}
-              </span>
-            )}
-
-            <span className="text-[9px] text-gray-400 dark:text-gray-500 font-medium">
-              Starting Price
-            </span>
-          </div>
-
-          {/* Delivery Badge */}
-          <div className="mt-1.5 flex items-center gap-1">
-            <Truck className="w-3 h-3 text-green-600 dark:text-green-400" />
-            <span className="text-[10px] font-medium text-green-700 dark:text-green-400">
-              Delivery Available
-            </span>
-            {inStock && (
-              <>
-                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600 mx-1" />
-                <CheckCircle className="w-3 h-3 text-emerald-500" />
-                <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
-                  In Stock
-                </span>
-              </>
+        {/* Rating */}
+        {rating > 0 && (
+          <div className="mb-2 flex items-center gap-1">
+            <div className="flex">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={14}
+                  className={i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}
+                />
+              ))}
+            </div>
+            {reviewCount > 0 && (
+              <span className="text-xs text-gray-500">({reviewCount})</span>
             )}
           </div>
+        )}
+
+        {/* Price */}
+        <div className="mb-3 flex items-baseline gap-2">
+          <span className="text-xl font-bold text-gray-900">
+            {currency}{price.toLocaleString('en-IN')}
+          </span>
+          {originalPrice && (
+            <span className="text-sm text-gray-400 line-through">
+              {currency}{originalPrice.toLocaleString('en-IN')}
+            </span>
+          )}
+          <span className="text-xs text-gray-500">Starting Price</span>
         </div>
 
-        {/* ========== ACTION BUTTONS - MAX 2 CTAs ========== */}
-        <div className="flex gap-2 mt-auto pt-2">
-          {/* CTA 1: Add to Cart */}
-          <button
-            onClick={handleAddToCart}
-            disabled={!inStock}
-            className={`flex-1 group/btn text-xs font-semibold py-2.5 px-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-xl transform active:scale-95 ${inStock
-                ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-              }`}
-          >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>{isAdded ? 'Added ✓' : 'Add to Cart'}</span>
-          </button>
+        {/* Stock & Delivery Status */}
+        <div className="mb-4 flex flex-wrap gap-3 text-xs">
+          {inStock ? (
+            <span className="flex items-center gap-1 text-green-700">
+              <CheckCircle size={14} /> In Stock
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-red-600">Out of Stock</span>
+          )}
+          {deliveryAvailable && (
+            <span className="flex items-center gap-1 text-blue-600">
+              <Truck size={14} /> Delivery Available
+            </span>
+          )}
+        </div>
 
-          {/* CTA 2: Buy Now - Only shown on hover or always for premium conversion */}
+        {/* Action Buttons – Only TWO primary CTAs */}
+        <div className="mt-auto flex gap-2">
           <button
-            onClick={handleQuickView}
+            onClick={() => onAddToCart?.(id)}
             disabled={!inStock}
-            className={`flex-1 text-xs font-semibold py-2.5 px-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-xl transform active:scale-95 ${inStock
-                ? 'bg-white dark:bg-gray-800 border-2 border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-gray-700'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 border border-gray-200 dark:border-gray-700 cursor-not-allowed'
-              }`}
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-emerald-600 bg-white py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Zap className="w-3.5 h-3.5" />
-            <span>Buy Now</span>
+            <ShoppingCart size={16} /> Add to Cart
+          </button>
+          <button
+            onClick={() => onBuyNow?.(id)}
+            disabled={!inStock}
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-emerald-700 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Zap size={16} /> Buy Now
           </button>
         </div>
-      </div>
-
-      {/* Premium Hover Glow Effect */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-2xl" />
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-2xl blur-xl" />
       </div>
     </div>
   );
-});
-
-PlantCard.displayName = 'PlantCard';
+};
 
 export default PlantCard;
