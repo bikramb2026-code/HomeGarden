@@ -190,7 +190,7 @@ const Home = () => {
               variants={fadeInUp}
               className="text-base md:text-lg lg:text-xl text-gray-200 mb-8 max-w-2xl mx-auto leading-relaxed"
             >
-              Discover our curated collection of {stats.plants}+ premium plants. Each plant is hand-picked and nurtured with care.
+              Discover our curated collection of {stats.plants} premium plants. Each plant is hand-picked and nurtured with care.
             </motion.p>
 
             <motion.div
@@ -241,7 +241,7 @@ const Home = () => {
               className="grid grid-cols-3 gap-4 md:gap-8 mt-12 max-w-2xl mx-auto"
             >
               <div className="text-center">
-                <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">{stats.plants}+</div>
+                <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">{stats.plants}</div>
                 <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">Plants</div>
               </div>
               <div className="text-center">
@@ -349,8 +349,8 @@ const Home = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`group relative px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 ${activeTab === tab.id
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg scale-105'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
               >
                 <span className="flex items-center gap-2">
