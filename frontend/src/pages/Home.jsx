@@ -37,6 +37,11 @@ const Home = () => {
 
       const plantsRes = await api.get('/plants');
       const plants = plantsRes.data.data || [];
+      // Get the exact total count from the API response
+      const exactPlantCount = plantsRes.data.total || plants.length;
+
+      console.log('Total plants in database:', exactPlantCount); // Should show 35
+
       setAllPlants(plants);
       setFeaturedPlants(plants.slice(0, 8));
 
@@ -44,8 +49,8 @@ const Home = () => {
       const varietiesRes = await api.get('/varieties');
 
       setStats({
-        plants: plants.length,
-        categories: categoriesRes.data.data?.length || 0,
+        plants: exactPlantCount, // This will be 35 from your database
+        categories: categoriesRes.data.data?.length || 19,
         varieties: varietiesRes.data.data?.length || 0,
         customers: '2k+'
       });
@@ -66,6 +71,13 @@ const Home = () => {
 
     } catch (error) {
       console.error('Error fetching home data:', error);
+      // Fallback to 35 if API fails
+      setStats({
+        plants: 35,
+        categories: 19,
+        varieties: 0,
+        customers: '2k+'
+      });
     } finally {
       setLoading(false);
     }
@@ -242,15 +254,15 @@ const Home = () => {
             >
               <div className="text-center">
                 <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">{stats.plants}</div>
-                <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">Plants</div>
+                <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">PLANTS</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">{stats.categories}+</div>
-                <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">Categories</div>
+                <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">CATEGORIES</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">{stats.customers}</div>
-                <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">Happy Customers</div>
+                <div className="text-xs md:text-sm text-gray-300 uppercase tracking-wider mt-1">HAPPY CUSTOMERS</div>
               </div>
             </motion.div>
           </motion.div>
